@@ -21,7 +21,7 @@ class RdtApplicant extends Model
     protected $fillable = [
         'nik', 'name', 'address', 'province_code', 'city_code', 'district_code', 'village_code',
         'email', 'phone_number', 'gender', 'birth_date', 'occupation_type', 'occupation_name', 'workplace_name',
-        'symptoms', 'symptoms_notes', 'symptoms_interaction', 'symptoms_activity',
+        'symptoms', 'symptoms_notes', 'symptoms_interaction', 'symptoms_activity','people_status',
         'latitude', 'longitude', 'pikobar_session_id', 'pikobar_user_id',
     ];
 
