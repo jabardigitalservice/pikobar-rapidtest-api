@@ -17,6 +17,7 @@
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
         "league/flysystem-aws-s3-v3": "^1.0",
+        "maatwebsite/excel": "^3.1",
         "pragmarx/random": "^0.2.2",
         "sentry/sentry-laravel": "^1.8",
         "simplesoftwareio/simple-qrcode": "^2.0",
