@@ -17,7 +17,7 @@ class CheckNikIsAlreadyUsedController extends Controller
             $response['message'] = $validator->messages();
         } else {
             $rdtApplicant = RdtApplicant::where('nik', $request->nik)->first();
-            if ($rdtApplicant!=null) {
+            if ($rdtApplicant != null) {
                 $response['message'] = "nik sudah pernah digunakan";
                 $statusCode = 422;
             } else {
