@@ -1,6 +1,12 @@
 <?php
 
 return [
+
+    /**
+     * Config toggle for notify over SMS/WA
+     */
+    'notify' => env('NOTIFY', false),
+
     /**
      * In development/staging environment, we need to carefully send notifications.
      * Redirect/send to developer instead to real numbers

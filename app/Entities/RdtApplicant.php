@@ -5,6 +5,7 @@ namespace App\Entities;
 use App\Enums\PersonCaseStatusEnum;
 use App\Enums\RdtApplicantStatus;
 use App\Enums\SymptomsInteraction;
+use App\Enums\HaveInteractedEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
@@ -39,7 +40,7 @@ class RdtApplicant extends Model
         'email', 'phone_number', 'gender', 'birth_date', 'occupation_type', 'occupation_name', 'workplace_name',
         'is_pns',
         'symptoms', 'symptoms_notes', 'symptoms_interaction', 'symptoms_activity', 'person_status', 'status',
-        'latitude', 'longitude', 'pikobar_session_id', 'pikobar_user_id',
+        'latitude', 'longitude', 'pikobar_session_id', 'pikobar_user_id', 'city_visited' , 'congenital_disease' , 'have_interacted'
     ];
 
     /**
@@ -62,6 +63,7 @@ class RdtApplicant extends Model
     protected $casts = [
         'symptoms'          => 'array',
         'symptoms_activity' => 'array',
+        'congenital_disease' => 'array',
         'is_pns'            => 'boolean',
     ];
 
@@ -69,6 +71,7 @@ class RdtApplicant extends Model
         'symptoms_interaction' => SymptomsInteraction::class . ':nullable',
         'person_status'        => PersonCaseStatusEnum::class . ':nullable',
         'status'               => RdtApplicantStatus::class,
+        'have_interacted'      => HaveInteractedEnum::class . ':nullable',
     ];
 
     public function city()

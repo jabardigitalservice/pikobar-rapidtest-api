@@ -32,7 +32,7 @@ class RdtRegisterRequest extends FormRequest
         return [
             'g-recaptcha-response' => ['required', new RecaptchaRule()],
             'name'                 => ['required', 'min:3'],
-            'nik'                  => ['required', new NikRule()],
+            'nik'                  => ['required', 'unique:rdt_applicants', new NikRule()],
             'address'              => 'required',
             'city_code'            => ['required', 'exists:areas,code_kemendagri'],
             'district_code'        => ['required', 'exists:areas,code_kemendagri'],
@@ -46,6 +46,9 @@ class RdtRegisterRequest extends FormRequest
             'workplace_name'       => 'required',
             'symptoms'             => 'required',
             'symptoms_notes'       => 'required',
+            'have_interacted'      => 'sometimes|required',
+            'congenital_disease'   => 'sometimes|required',
+            'city_visited'         => 'sometimes|required'
         ];
     }
 }

@@ -1,0 +1,9 @@
+﻿stages:
+- name: build
+  steps:
+  - publishImageConfig:
+      dockerfilePath: ./Dockerfile
+      buildContext: .
+      tag: tesmasif/api:v1
+timeout: 60
+notification: {}
