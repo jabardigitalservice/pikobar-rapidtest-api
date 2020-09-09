@@ -14,6 +14,6 @@ class RdtInvitationExportExcelF1Controller extends Controller
     {
         $rdtEvent = RdtEvent::findOrFail($id);
         $fileName = str_replace(" ", "-", $rdtEvent->event_name);
-        return Excel::download(new RdtInvitationExcel($id), $fileName.'.xlsx');
+        return Excel::download(new RdtInvitationExcel($id), $fileName . '.xlsx');
     }
 }
