@@ -54,7 +54,10 @@ class ApplicantEventCheckin
         $notify = config('notifications.messages.checkin_thankyou');
 
         if ($notify) {
-            $rdtApplicant->notifyNow(new CheckinThankYou($rdtInvitation->event, $rdtInvitation), [WhatsappChannel::class]);
+            $rdtApplicant->notifyNow(
+                new CheckinThankYou($rdtInvitation->event, $rdtInvitation),
+                [WhatsappChannel::class]
+            );
         }
     }
 }

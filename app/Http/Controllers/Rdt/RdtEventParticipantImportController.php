@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Rdt;
 
+use App\Channels\SmsChannel;
+use App\Channels\WhatsappChannel;
 use App\Entities\RdtApplicant;
 use App\Entities\RdtEvent;
 use App\Entities\RdtInvitation;
@@ -9,79 +11,56 @@ use App\Enums\RdtApplicantStatus;
 use App\Enums\RdtEventStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtInvitationImportRequest;
-use AsyncAws\Core\AwsClientFactory;
-use AsyncAws\Sqs\Input\GetQueueUrlRequest;
-use AsyncAws\Sqs\Input\SendMessageRequest;
+use App\Notifications\RdtEventInvitation;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class RdtEventParticipantImportController extends Controller
 {
-
-    const SMS_QUEUE_NAME = 'smsblast-queue';
-
-    const WA_QUEUE_NAME = 'wablast-queue';
-
     const NOTIFY_SMS = 'sms';
 
     const NOTIFY_WA = 'wa';
 
     const NOTIFY_BOTH = 'both';
 
-    private $sqs;
-
-    public function __construct()
-    {
-
-        // set credential sqs
-        $factory = new AwsClientFactory([
-            'region'            => config('aws.region'),
-            'accessKeyId'       => config('aws.key'),
-            'accessKeySecret'   => config('aws.secret')
-        ]);
-
-        $this->sqs = $factory->sqs();
-    }
-
     public function __invoke(RdtInvitationImportRequest $request, RdtEvent $rdtEvent)
     {
-        $reader = ReaderEntityFactory::createXLSXReader();
 
-        $reader->open($request->file->path());
-
-        $count = 0;
-
+        $rowCount = 0;
+        $userId   = $request->user()->id;
         $rdtEvent->status = RdtEventStatus::PUBLISHED();
         $rdtEvent->save();
+
+        $reader = ReaderEntityFactory::createXLSXReader();
+        $reader->open($request->file->path());
 
         foreach ($reader->getSheetIterator() as $sheet) {
             foreach ($sheet->getRowIterator() as $key => $row) {
                 $rowArray = $row->toArray();
 
                 if ($key > 1) {
-                    $count++;
+                    $rowCount++;
 
-                    $participant = [
-                        'registration_code'     => $rowArray[0],
-                        'rdt_event_id'          => $rowArray[1],
-                        'rdt_event_schedule_id' => $rowArray[2],
-                        'nik'                   => $rowArray[3],
-                        'name'                  => $rowArray[4],
-                        'city_code'             => $rowArray[5],
-                        'phone_number'          => $rowArray[6],
-                        'notify'                => $rowArray[7],
-                        'notify_method'         => $rowArray[8] // SMS/WA/BOTH
+                    $rowImport = [
+                        'registration_code'     => $rowArray[0], 'rdt_event_id' => $rowArray[1],
+                        'rdt_event_schedule_id' => $rowArray[2], 'nik'          => $rowArray[3],
+                        'name'                  => $rowArray[4], 'city_code'    => $rowArray[5],
+                        'phone_number'          => $rowArray[6], 'notify'       => $rowArray[7],
+                        'notify_method'         => $rowArray[8]
                     ];
 
+                    $this->logRow($key, $rdtEvent, $rowImport, $userId);
+                    $applicant  = $this->fillApplicant($rowImport);
+                    $invitation = $this->fillInvitation($applicant, $rowImport);
 
-                    $applicant  = $this->fillApplicant($participant);
+                    if (strtolower($rowImport['notify']) === 'yes') {
+                        $this->pushNotification($rowImport, $rdtEvent, $applicant);
 
-                    $invitation = $this->fillInvitation($applicant, $participant);
-
-                    if (strtolower($participant['notify']) === 'yes') {
-                        $this->pushNotification($participant, $rdtEvent, $applicant);
                         $invitation->notified_at = Carbon::now();
                         $invitation->save();
+
+                        $this->logNotification($applicant, $invitation, $userId);
                     }
                 }
             }
@@ -89,7 +68,9 @@ class RdtEventParticipantImportController extends Controller
 
         $reader->close();
 
-        return response()->json(['message' => 'import success, ' . $count . ' rows']);
+        $this->logSuccessImport($request->file('file')->getClientOriginalName(), $rowCount, $userId);
+
+        return response()->json(['message' => 'import success, ' . $rowCount . ' rows']);
     }
 
     private function fillApplicant(array $participant)
@@ -124,107 +105,54 @@ class RdtEventParticipantImportController extends Controller
         return $rdtInvitation;
     }
 
-    private function getQueueUrl($queueName)
+    private function pushNotification($fileImport, $event, $applicant)
     {
+        if (strtolower($fileImport['notify_method']) === self::NOTIFY_WA) {
+            $applicant->notifyNow(new RdtEventInvitation($event), [WhatsappChannel::class]);
+        }
 
-        return $this->sqs->getQueueUrl(new GetQueueUrlRequest([
-            'QueueName' => $queueName
-        ]))->getQueueUrl();
+        if (strtolower($fileImport['notify_method']) === self::NOTIFY_SMS) {
+            $applicant->notifyNow(new RdtEventInvitation($event), [SmsChannel::class]);
+        }
+
+        if (strtolower($fileImport['notify_method']) === self::NOTIFY_BOTH) {
+            $applicant->notifyNow(new RdtEventInvitation($event), [WhatsappChannel::class, SmsChannel::class]);
+        }
     }
 
-    private function sendMessageToQueue($queueName, $phoneNumber, $message)
+    private function logRow($index, $event, $row, $userId)
     {
-
-        $messageRequest = new SendMessageRequest([
-            'QueueUrl'          => $this->getQueueUrl($queueName),
-            'DelaySeconds'      => 10,
-            'MessageAttributes' => [
-                'PhoneNumber'   => [
-                    'DataType'  => 'String',
-                    'StringValue'   => $phoneNumber
-                ]
-            ],
-            'MessageBody'       => $message
+        Log::info('IMPORT_INVITATION_ROW', [
+            'row' => $index,
+            'event' => $event,
+            'registration_code'     => $row['registration_code'],
+            'rdt_event_id'          => $row['rdt_event_id'],
+            'rdt_event_schedule_id' => $row['rdt_event_schedule_id'],
+            'nik'                   => $row['nik'],
+            'name'                  => $row['name'],
+            'city_code'             => $row['city_code'],
+            'phone_number'          => $row['phone_number'],
+            'notify'                => $row['notify'],
+            'notify_method'         => $row['notify_method'],
+            'user_id' => $userId
         ]);
-
-
-        $this->sqs->sendMessage($messageRequest);
     }
 
-    private function reformatPhoneNumber($phoneNumber, $format = 'sms')
+    private function logNotification($applicant, $invitation, $userId)
     {
-
-        if ($format === 'wa') {
-            return $this->reformatWa($phoneNumber);
-        }
-
-        return $this->reformatSms($phoneNumber);
+        Log::info('NOTIFY_INVITATION', [
+            'applicant'  => $applicant,
+            'invitation' => $invitation,
+            'user_id'    => $userId,
+        ]);
     }
 
-    private function reformatSms($phoneNumber)
+    private function logSuccessImport($fileName, $rowCount, $userId)
     {
-        if ($phoneNumber[0] == '6') {
-            return substr_replace($phoneNumber, '0', 0, 2);
-        }
-
-        if ($phoneNumber[0] == '+') {
-            return substr_replace($phoneNumber, '0', 0, 3);
-        }
-
-        return $phoneNumber;
-    }
-
-    private function reformatWa($phoneNumber)
-    {
-        if ($phoneNumber[0] == '0') {
-            return substr_replace($phoneNumber, '62', 0, 1);
-        }
-
-        if ($phoneNumber[0] == '+') {
-            return substr_replace($phoneNumber, '', 0, 1);
-        }
-
-        return $phoneNumber;
-    }
-
-    private function messageWa($name, $hostName, $registrationCode)
-    {
-
-        $message  = 'Yth. ' . $name . ' Sampurasun, Anda diundang untuk melakukan Tes Masif COVID-19 oleh ' . $hostName;
-        $message .= ' Silakan buka tautan https://s.id/tesmasif2 dan masukkan Nomor Pendaftaran berikut: ';
-        $message .= $registrationCode . ' untuk melihat undangan. Hatur nuhun';
-
-        return $message;
-    }
-
-    private function messageSms($hostName, $registrationCode)
-    {
-
-        $message  = 'Sampurasun. Anda diundang Tes Masif COVID-19 ';
-        $message .= $hostName . '. Buka tautan s.id/tesmasif1 dan input nomor: ';
-        $message .= $registrationCode . ' untuk melihat undangan.';
-
-        return $message;
-    }
-
-    private function pushNotification($participant, $event, $applicant)
-    {
-        $phoneNumberWa  = $this->reformatPhoneNumber($participant['phone_number'], self::NOTIFY_WA);
-        $phoneNumberSms = $this->reformatPhoneNumber($participant['phone_number'], self::NOTIFY_SMS);
-        $messageWa      = $this->messageWa($applicant->name, $event->host_name, $applicant->registration_code);
-        $messageSms     = $this->messageSms($event->host_name, $applicant->registration_code);
-
-        if (strtolower($participant['notify_method']) === self::NOTIFY_WA) {
-            $this->sendMessageToQueue(self::WA_QUEUE_NAME, $phoneNumberWa, $messageWa);
-        }
-
-        if (strtolower($participant['notify_method']) === self::NOTIFY_SMS) {
-            $this->sendMessageToQueue(self::SMS_QUEUE_NAME, $phoneNumberSms, $messageSms);
-        }
-
-        if (strtolower($participant['notify_method']) === self::NOTIFY_BOTH) {
-            $this->sendMessageToQueue(self::WA_QUEUE_NAME, $phoneNumberWa, $messageWa);
-            $this->sendMessageToQueue(self::SMS_QUEUE_NAME, $phoneNumberSms, $messageSms);
-        }
+        Log::info('IMPORT_INVITATION_SUCCESS', [
+            'file_name'  => $fileName,
+            'rows_total' => $rowCount,
+            'user_id'    => $userId,
+        ]);
     }
 }

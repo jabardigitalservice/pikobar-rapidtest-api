@@ -31,6 +31,12 @@ class SmsChannel
 
     protected function process($notifiable, $message)
     {
+        $enableNotification = config('notifications.notify');
+
+        if ($enableNotification === false) {
+            return false;
+        }
+
         $phoneNumber = $this->getPhoneNumber($notifiable);
 
         if ($phoneNumber instanceof Collection) {

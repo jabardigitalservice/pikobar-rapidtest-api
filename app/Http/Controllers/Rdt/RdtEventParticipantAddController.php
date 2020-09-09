@@ -6,6 +6,7 @@ use App\Entities\RdtApplicant;
 use App\Entities\RdtEvent;
 use App\Entities\RdtInvitation;
 use App\Enums\RdtApplicantStatus;
+use App\Enums\RdtEventStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RdtEventResource;
 use Illuminate\Http\Request;
@@ -22,6 +23,11 @@ class RdtEventParticipantAddController extends Controller
     public function __invoke(Request $request, RdtEvent $rdtEvent)
     {
         $applicantIds = $request->input('applicants');
+
+        if (RdtEventStatus::DRAFT()->isEqual($rdtEvent->status)) {
+            $rdtEvent->status = RdtEventStatus::PUBLISHED();
+            $rdtEvent->save();
+        }
 
         foreach ($applicantIds as $applicantId) {
             /**

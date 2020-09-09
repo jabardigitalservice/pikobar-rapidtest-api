@@ -9,16 +9,12 @@ class RdtEventResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            $this->mergeWhen($request->user(), [
-                'id'         => $this->id,
-                'event_code' => $this->event_code,
-            ]),
             'event_name'     => $this->event_name,
             'event_location' => $this->event_location,
             'event_reg_url'  => sprintf('%s/#/?sessionId=%s', config('app.client_url'), $this->event_code),
@@ -27,6 +23,14 @@ class RdtEventResource extends JsonResource
             'end_at'         => $this->end_at,
             'status'         => $this->status,
             'city'           => new AreaResource($this->whenLoaded('city')),
+            $this->merge($this->getStatisticCountAttributes()),
+            $this->mergeWhen($request->user(), $this->getProtectedAttributes()),
+        ];
+    }
+
+    protected function getStatisticCountAttributes()
+    {
+        return [
             $this->mergeWhen($this->invitations_count !== null, [
                 'invitations_count' => $this->invitations_count,
             ]),
@@ -39,12 +43,18 @@ class RdtEventResource extends JsonResource
             $this->mergeWhen($this->attendees_result_count !== null, [
                 'attendees_result_count' => $this->attendees_result_count,
             ]),
-            $this->mergeWhen($request->user(), [
-                'invitations' => RdtInvitationResource::collection($this->whenLoaded('invitations')),
-                'schedules'   => RdtEventScheduleResource::collection($this->whenLoaded('schedules')),
-                'created_at'  => $this->created_at,
-                'updated_at'  => $this->updated_at,
-            ]),
+        ];
+    }
+
+    protected function getProtectedAttributes()
+    {
+        return [
+            'id'          => $this->id,
+            'event_code'  => $this->event_code,
+            'invitations' => RdtInvitationResource::collection($this->whenLoaded('invitations')),
+            'schedules'   => RdtEventScheduleResource::collection($this->whenLoaded('schedules')),
+            'created_at'  => $this->created_at,
+            'updated_at'  => $this->updated_at,
         ];
     }
 }
