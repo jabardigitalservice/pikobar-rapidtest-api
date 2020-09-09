@@ -68,6 +68,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('rdt/events/{rdtEvent}/participants-import', 'Rdt\RdtEventParticipantImportController');
     Route::get('rdt/events/{rdtEvent}/participants-export', 'Rdt\RdtEventParticipantListExportController')
         ->middleware('can:view,rdtEvent');
+    Route::get('rdt/events/{rdtEvent}/participants-export-f1', 'Rdt\RdtInvitationExportExcelF1Controller');
 
     Route::post('rdt/events/{rdtEvent}/participants-import-results', 'Rdt\RdtEventParticipantImportResultController');
 
