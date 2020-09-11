@@ -29,7 +29,7 @@ class RdtEventParticipantsController extends Controller
             'rdt_applicants.registration_code',
             'rdt_invitations.lab_code_sample',
             'rdt_applicants.created_at',
-            'rdt_applicants.attended_at'
+            'rdt_invitations.attended_at'
         )
         ->where('rdt_invitations.rdt_event_id', $event->id)
         ->orderBy('rdt_applicants.name');
