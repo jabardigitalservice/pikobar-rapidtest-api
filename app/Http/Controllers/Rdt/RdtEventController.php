@@ -29,8 +29,6 @@ class RdtEventController extends Controller
         $status    = $request->input('status', 'all');
         $search    = $request->input('search');
 
-        $perPage = $this->getPaginationSize($perPage);
-
         if (in_array($sortBy, ['id', 'event_name', 'start_at', 'end_at', 'status', 'created_at']) === false) {
             $sortBy = 'event_name';
         }
@@ -148,14 +146,5 @@ class RdtEventController extends Controller
         $rdtEvent->delete();
 
         return response()->json(['message' => 'DELETED']);
-    }
-
-    protected function getPaginationSize($perPage)
-    {
-        if ($perPage <= 0 || $perPage > 20) {
-            return 15;
-        }
-
-        return $perPage;
     }
 }

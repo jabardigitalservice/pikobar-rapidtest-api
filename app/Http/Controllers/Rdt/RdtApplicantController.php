@@ -27,8 +27,6 @@ class RdtApplicantController extends Controller
         $search            = $request->input('search');
         $sessionId         = $request->input('session_id');
 
-        $perPage = $this->getPaginationSize($perPage);
-
         if (in_array($sortBy, ['id', 'name', 'gender', 'age', 'person_status', 'created_at']) === false) {
             $sortBy = 'name';
         }
@@ -138,14 +136,5 @@ class RdtApplicantController extends Controller
         $rdtApplicant->delete();
 
         return response()->json(['message' => 'DELETED']);
-    }
-
-    protected function getPaginationSize($perPage)
-    {
-        if ($perPage <= 0 || $perPage > 20) {
-            return 15;
-        }
-
-        return $perPage;
     }
 }
