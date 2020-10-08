@@ -8,23 +8,19 @@ use File;
 use DB;
 use Carbon\Carbon;
 use App\Enums\PersonCaseStatusEnum;
+use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
 
 class RdtEventParticipantListExportF1Controller extends Controller
 {
-    public function __invoke($id)
+    public function __invoke(RdtEvent $rdtEvent)
     {
-        header('Access-Control-Allow-Methods: *');
-        header('Access-Control-Allow-Headers: *');
-        header('Access-Control-Expose-Headers: *');
-
         $writer = WriterEntityFactory::createXLSXWriter();
 
-        $rdtEvent = RdtEvent::findOrFail($id);
         $fileName = Str::slug($rdtEvent->event_name, '-') . '.xlsx';
-        $writer->openToBrowser($fileName);
+        $writer->openToFile('php://output');
 
         $header = [
             'NO',
@@ -102,7 +98,7 @@ class RdtEventParticipantListExportF1Controller extends Controller
                 ->leftJoin('areas as city', 'city.code_kemendagri', 'rdt_applicants.city_code')
                 ->leftJoin('areas as district', 'district.code_kemendagri', 'rdt_applicants.district_code')
                 ->leftJoin('areas as village', 'village.code_kemendagri', 'rdt_applicants.village_code')
-                ->where('rdt_invitations.rdt_event_id', $id)
+                ->where('rdt_invitations.rdt_event_id', $rdtEvent->id)
                 ->get();
 
         $personStatusValue = [
@@ -143,7 +139,7 @@ class RdtEventParticipantListExportF1Controller extends Controller
                         '',
                         '',
                         '',
-                        $personStatusValue[$row->person_status],
+                        $personStatusValue[$row->person_status] ?? null,
                         $row->name,
                         $row->nik,
                         $row->birth_place,
@@ -173,7 +169,19 @@ class RdtEventParticipantListExportF1Controller extends Controller
             $rowFromValues = WriterEntityFactory::createRowFromArray($row);
             $writer->addRow($rowFromValues);
         }
-        
-        $writer->close();
+
+        return $this->responseStream($fileName, $writer);
+    }
+
+    protected function responseStream($fileName, $writer)
+    {
+        $headers = [
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\";",
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ];
+
+        return response()->stream(function () use ($writer) {
+            $writer->close();
+        }, Response::HTTP_OK, $headers);
     }
 }

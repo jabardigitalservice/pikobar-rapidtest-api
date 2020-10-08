@@ -15,7 +15,7 @@ $factory->define(RdtApplicant::class, function (Faker $faker) {
     return [
         'nik'                  => $faker->nik,
         'name'                 => $faker->name,
-        'gender'               => Arr::random(Gender::toArray()),
+        'gender'               => Arr::random(Gender::getValues()),
         'person_status'        => Arr::random(PersonCaseStatusEnum::toArray()),
         'birth_date'           => $faker->dateTimeThisCentury,
         'city_code'            => '32.73',
