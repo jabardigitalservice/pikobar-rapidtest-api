@@ -99,6 +99,7 @@ class RdtEventParticipantListExportF1Controller extends Controller
                 ->leftJoin('areas as district', 'district.code_kemendagri', 'rdt_applicants.district_code')
                 ->leftJoin('areas as village', 'village.code_kemendagri', 'rdt_applicants.village_code')
                 ->where('rdt_invitations.rdt_event_id', $rdtEvent->id)
+                ->whereNotNull('rdt_invitations.lab_code_sample')
                 ->get();
 
         $personStatusValue = [
