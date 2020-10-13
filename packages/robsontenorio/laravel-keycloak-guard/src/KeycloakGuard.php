@@ -219,11 +219,15 @@ class KeycloakGuard implements Guard
             return false;
         }
 
-        $allowedResource = $this->config['allowed_resources']; // beware multiple resources
+        $roles = [];
 
         $resourceAccess = (array) $this->decodedToken->resource_access;
 
-        return $resourceAccess[$allowedResource]->roles;
+        foreach ($resourceAccess as $resource) {
+            $roles = array_merge($roles, $resource->roles);
+        }
+
+        return $roles;
     }
 
     public function getRealmRoles()
