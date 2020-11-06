@@ -86,6 +86,8 @@ class RdtEventParticipantListExportF1Controller extends Controller
                     'rdt_applicants.have_interacted',
                     'rdt_applicants.congenital_disease',
                     'rdt_events.host_name',
+                    'rdt_events.host_type',
+                    'fasyankes.id as fasyankes_id',
                     'rdt_events.start_at',
                     'rdt_events.end_at',
                     'rdt_events.event_location',
@@ -98,8 +100,10 @@ class RdtEventParticipantListExportF1Controller extends Controller
                 ->leftJoin('areas as city', 'city.code_kemendagri', 'rdt_applicants.city_code')
                 ->leftJoin('areas as district', 'district.code_kemendagri', 'rdt_applicants.district_code')
                 ->leftJoin('areas as village', 'village.code_kemendagri', 'rdt_applicants.village_code')
+                ->leftJoin('fasyankes', 'fasyankes.name', '=', 'rdt_events.host_name')
                 ->where('rdt_invitations.rdt_event_id', $rdtEvent->id)
                 ->whereNotNull('rdt_invitations.lab_code_sample')
+                ->whereNotNull('rdt_invitations.attended_at')
                 ->get();
 
         $personStatusValue = [
@@ -107,8 +111,8 @@ class RdtEventParticipantListExportF1Controller extends Controller
             'SUSPECT' => 'Kasus Suspek',
             'PROBABLE' => 'Kasus Probable',
             'CLOSE_CONTACT' => 'Kontak Erat',
-            'NOT_ALL' => 'Bukan Semuanya',
-            'UNKNOWN' => 'Tidak Tahu',
+            'NOT_ALL' => 'Tanpa Kriteria',
+            'UNKNOWN' => 'Tanpa Kriteria',
             'ODP' => 'Orang Dalam pengawasan',
             'OTG' => 'Orang Tanpa Gejala',
             'PDP' => 'Pasien Dalam Pengawasan'
@@ -139,12 +143,12 @@ class RdtEventParticipantListExportF1Controller extends Controller
                         $row->host_name,
                         '',
                         '',
-                        '',
+                        $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY'),
                         $personStatusValue[$row->person_status] ?? null,
                         $row->name,
                         $row->nik,
                         $row->birth_place,
-                        Carbon::parse($row->birth_date)->format('d-m-Y'),
+                        Carbon::parse($row->birth_date)->format('Y-m-d'),
                         $ageYear,
                         $ageMonth,
                         $gender,
@@ -161,8 +165,8 @@ class RdtEventParticipantListExportF1Controller extends Controller
                         1,
                         '',
                         '',
-                        '',
-                        '',
+                        $row->host_type,
+                        $row->fasyankes_id,
                         Carbon::parse($row->attended_at)->format('d-m-Y H:i:s'),
                          ''
                     ];

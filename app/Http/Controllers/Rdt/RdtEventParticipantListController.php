@@ -36,6 +36,8 @@ class RdtEventParticipantListController extends Controller
                 $query->where('rdt_applicants.name', 'like', '%' . $search . '%');
                 $query->orWhere('rdt_invitations.registration_code', 'like', '%' . $search . '%');
                 $query->orWhere('lab_code_sample', 'like', '%' . $search . '%');
+                $query->orWhere('rdt_applicants.workplace_name', 'like', '%' . $search . '%');
+                $query->orWhere('rdt_applicants.nik', '=', $search);
             });
         }
 
