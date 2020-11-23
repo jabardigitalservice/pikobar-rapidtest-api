@@ -26,10 +26,10 @@ class RdtEventParticipantListController extends Controller
         $perPage = $this->getPaginationSize($perPage);
 
         $records = $rdtEvent->invitations();
-        $records->select('rdt_invitations.*');
-        $records->join('rdt_applicants', 'rdt_invitations.rdt_applicant_id', '=', 'rdt_applicants.id');
+        $records->select('rdt_invitations.*')->join('rdt_applicants', 'rdt_invitations.rdt_applicant_id', '=', 'rdt_applicants.id');
 
         $records->where('rdt_invitations.rdt_event_id', $rdtEvent->id);
+        $records->whereNull('rdt_applicants.deleted_at');
 
         if ($search) {
             $records->where(function ($query) use ($search) {
@@ -60,7 +60,6 @@ class RdtEventParticipantListController extends Controller
         if (in_array($perPage, $perPageAllowed)) {
             return $perPage;
         }
-        
         return 15;
     }
 }

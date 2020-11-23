@@ -38,12 +38,13 @@ class RdtEventParticipantListExportF1Controller extends Controller
             'USIA TAHUN',
             'USIA BULAN',
             'JENIS KELAMIN',
-            'ID KOTA',
+            'PROVINSI_ID',
+            'KOTA_ID',
             'KOTA',
             'NO HP',
-            'ID KECAMATAN',
+            'KECAMATAN_ID',
             'KECAMATAN',
-            'ID KELURAHAN/ DESA',
+            'KELURAHAN_ID',
             'KELURAHAN/ DESA',
             'ALAMAT',
             'RT',
@@ -106,17 +107,18 @@ class RdtEventParticipantListExportF1Controller extends Controller
                 ->whereNotNull('rdt_invitations.attended_at')
                 ->get();
 
+
         $personStatusValue = [
-            'CONFIRMED' => 'Terkonfirmasi',
-            'SUSPECT' => 'Kasus Suspek',
-            'PROBABLE' => 'Kasus Probable',
-            'CLOSE_CONTACT' => 'Kontak Erat',
-            'NOT_ALL' => 'Tanpa Kriteria',
-            'UNKNOWN' => 'Tanpa Kriteria',
-            'ODP' => 'Orang Dalam pengawasan',
-            'OTG' => 'Orang Tanpa Gejala',
-            'PDP' => 'Pasien Dalam Pengawasan'
-        ];
+                    'CONFIRMED' => 'konfirmasi',
+                    'SUSPECT' => 'suspek',
+                    'PROBABLE' => 'probable',
+                    'CLOSE_CONTACT' => 'kontak erat',
+                    'NOT_ALL' => 'tanpa kriteria',
+                    'UNKNOWN' => 'tanpa kriteria',
+                    'ODP' => 'tanpa kriteria',
+                    'OTG' => 'tanpa kriteria',
+                    'PDP' => 'tanpa kriteria'
+                ];
 
         foreach ($data as $row) {
             if ($row->birth_date) {
@@ -135,6 +137,9 @@ class RdtEventParticipantListExportF1Controller extends Controller
             } else {
                 $gender = "";
             }
+
+            $attendedAt = Carbon::createFromFormat('Y-m-d H:i:s', $row->attended_at);
+            $attendedAt->setTimezone(config('app.timezone_frontend'));
             
             $row =  [
                         $row->number,
@@ -152,6 +157,7 @@ class RdtEventParticipantListExportF1Controller extends Controller
                         $ageYear,
                         $ageMonth,
                         $gender,
+                        '32',
                         $row->city_code,
                         $row->city,
                         $row->phone_number,
@@ -167,9 +173,10 @@ class RdtEventParticipantListExportF1Controller extends Controller
                         '',
                         $row->host_type,
                         $row->fasyankes_id,
-                        Carbon::parse($row->attended_at)->format('d-m-Y H:i:s'),
+                        $attendedAt->toDateTimeString(),
                          ''
                     ];
+                    
         
             $rowFromValues = WriterEntityFactory::createRowFromArray($row);
             $writer->addRow($rowFromValues);

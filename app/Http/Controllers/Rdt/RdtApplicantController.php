@@ -53,6 +53,7 @@ class RdtApplicantController extends Controller
             $records->where(function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%')
                     ->orWhere('registration_code', 'like', '%' . $search . '%')
+                    ->orWhere('nik', $search)
                     ->orWhere('phone_number', 'like', '%' . $search . '%');
             });
         }
