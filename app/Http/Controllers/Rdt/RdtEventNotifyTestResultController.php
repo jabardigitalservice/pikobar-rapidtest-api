@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Auth;
 
 class RdtEventNotifyTestResultController extends Controller
 {
@@ -36,6 +37,7 @@ class RdtEventNotifyTestResultController extends Controller
     {
         $invitation->applicant->notify(new TestResult());
         $invitation->notified_result_at = Carbon::now();
+        $invitation->notified_result_by = Auth::user()->id;
         $invitation->save();
 
         Log::info('NOTIFY_TEST_RESULT', [

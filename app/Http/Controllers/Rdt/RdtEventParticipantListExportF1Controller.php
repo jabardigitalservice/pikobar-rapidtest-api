@@ -138,9 +138,9 @@ class RdtEventParticipantListExportF1Controller extends Controller
                 $gender = "";
             }
 
-            $attendedAt = Carbon::createFromFormat('Y-m-d H:i:s', $row->attended_at);
-            $attendedAt->setTimezone(config('app.timezone_frontend'));
-            
+            $attendedAt = Carbon::parse($row->attended_at)
+                            ->timezone(config('app.timezone_frontend'))
+                            ->format('Y-m-d');
             $row =  [
                         $row->number,
                         $row->lab_code_sample ,
@@ -173,11 +173,9 @@ class RdtEventParticipantListExportF1Controller extends Controller
                         '',
                         $row->host_type,
                         $row->fasyankes_id,
-                        $attendedAt->toDateTimeString(),
+                        $attendedAt,
                          ''
                     ];
-                    
-        
             $rowFromValues = WriterEntityFactory::createRowFromArray($row);
             $writer->addRow($rowFromValues);
         }

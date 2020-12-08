@@ -108,18 +108,9 @@ class RdtCheckinTest extends TestCase
             'lab_code_sample'   => 'L0001',
             'location'          => 'PUSKESMAS CIPEDES',
         ])
-            ->assertSuccessful()
-            ->assertJsonStructure(['data' => ['registration_code', 'name', 'status']])
-            ->assertJsonFragment([
-                'registration_code' => $rdtApplicant->registration_code,
-                'name'              => $rdtApplicant->name,
-            ]);
-
-        $this->assertDatabaseHas('rdt_invitations', [
-            'rdt_event_id'      => $rdtEvent->id,
-            'registration_code' => $rdtApplicant->registration_code,
-            'lab_code_sample'   => 'L0001',
-            'attend_location'   => 'PUSKESMAS CIPEDES',
+        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonFragment([
+            'error' => 'APPLICANT_NOT_INVITED_AT_THIS_EVENT',
         ]);
     }
 

@@ -50,24 +50,7 @@ class RdtCheckinController extends Controller
 
         if ($invitation === null) {
             $applicant = RdtApplicant::where('registration_code', $registrationCode)->firstOrFail();
-
-            $invitation = new RdtInvitation();
-            $invitation->applicant()->associate($applicant);
-            $invitation->event()->associate($event);
-            $invitation->save();
-
-            if ($applicant->pikobar_session_id === null) {
-                $applicant->pikobar_session_id = $event->event_code;
-            }
-
-            $applicant->status = RdtApplicantStatus::APPROVED();
-            $applicant->save();
-
-            Log::info('APPLICANT_EVENT_CHECKIN_NOT_INVITED', [
-                'event_code' => $eventCode,
-                'applicant'  => $applicant,
-                'invitation' => $invitation,
-            ]);
+            return $this->responseApplicantEventCheckinNotInvited($eventCode, $applicant, $invitation);
         }
 
         if ($invitation->attended_at !== null) {
@@ -151,6 +134,21 @@ class RdtCheckinController extends Controller
         return response()->json([
             'error'   => 'ALREADY_USED_LAB_CODE_SAMPLE',
             'message' => 'Kode Sampel Lab sudah digunakan untuk checkin pada event ini.',
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+
+    protected function responseApplicantEventCheckinNotInvited($eventCode, $applicant, $invitation)
+    {
+        Log::info('APPLICANT_EVENT_CHECKIN_NOT_INVITED', [
+            'event_code' => $eventCode,
+            'applicant'  => $applicant,
+            'invitation' => $invitation,
+        ]);
+
+        return response()->json([
+            'error'   => 'APPLICANT_NOT_INVITED_AT_THIS_EVENT',
+            'message' => 'peserta tidak terdaftar pada event ini.',
         ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }

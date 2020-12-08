@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Entities\RdtEvent;
 use Illuminate\Support\Facades\DB;
 use PragmaRX\Random\Random;
+use Auth;
 
 class RdtEventObserver
 {
@@ -17,7 +18,13 @@ class RdtEventObserver
     public function creating(RdtEvent $rdtEvent)
     {
         $rdtEvent->province_code = '32';
+        $rdtEvent->created_by    = Auth::user()->id;
         $rdtEvent->event_code    = $this->generateUniqueEventCode();
+    }
+
+    public function updating(RdtEvent $rdtEvent)
+    {
+        $rdtEvent->updated_by    = Auth::user()->id;
     }
 
     protected function generateUniqueEventCode()

@@ -9,6 +9,7 @@ use App\Http\Requests\Rdt\RdtApplicantStoreRequest;
 use App\Http\Requests\Rdt\RdtApplicantUpdateRequest;
 use App\Http\Resources\RdtApplicantResource;
 use Illuminate\Http\Request;
+use DB;
 
 class RdtApplicantController extends Controller
 {
@@ -20,12 +21,15 @@ class RdtApplicantController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage           = $request->input('per_page', 15);
-        $sortBy            = $request->input('sort_by', 'created_at');
-        $sortOrder         = $request->input('sort_order', 'desc');
-        $status            = $request->input('status', 'new');
-        $search            = $request->input('search');
-        $sessionId         = $request->input('session_id');
+        $perPage                = $request->input('per_page', 15);
+        $sortBy                 = $request->input('sort_by', 'created_at');
+        $sortOrder              = $request->input('sort_order', 'desc');
+        $status                 = $request->input('status', 'new');
+        $search                 = $request->input('search');
+        $sessionId              = $request->input('session_id');
+        $registrationDateStart  = $request->input('registration_date_start');
+        $registrationDateEnd    = $request->input('registration_date_end');
+        $personStatus           = $request->input('person_status');
 
         $perPage = $this->getPaginationSize($perPage);
 
@@ -56,6 +60,14 @@ class RdtApplicantController extends Controller
                     ->orWhere('nik', $search)
                     ->orWhere('phone_number', 'like', '%' . $search . '%');
             });
+        }
+
+        if ($registrationDateStart) {
+            $records->whereBetween(DB::raw('CAST(created_at AS DATE)'), [$registrationDateStart , $registrationDateEnd]);
+        }
+
+        if ($personStatus) {
+            $records->where('person_status', $personStatus);
         }
 
         if ($request->has('city_code')) {
@@ -111,7 +123,6 @@ class RdtApplicantController extends Controller
         $rdtApplicant->load(['invitations' => function ($query) {
             $query->has('event');
         }, 'invitations.event', 'city', 'district', 'village']);
-        
         return new RdtApplicantResource($rdtApplicant);
     }
 
@@ -150,7 +161,6 @@ class RdtApplicantController extends Controller
         if (in_array($perPage, $perPageAllowed)) {
             return $perPage;
         }
-        
         return 15;
     }
 }

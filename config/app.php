@@ -72,6 +72,8 @@ return [
     'timezone' => 'UTC',
 
     'timezone_frontend' => 'Asia/Jakarta',
+    'labkes_url' => env('LABKES_URL'),
+    'labkes_api_key' => env('LABKES_API_KEY'),
 
     /*
     |--------------------------------------------------------------------------

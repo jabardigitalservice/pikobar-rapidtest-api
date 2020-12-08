@@ -54,7 +54,6 @@ class RdtEventController extends Controller
         if ($status === 'draft') {
             $records->whereEnum('status', RdtEventStatus::DRAFT());
         }
-    
         if ($status === 'published') {
             $records->whereEnum('status', RdtEventStatus::PUBLISHED());
         }
@@ -157,7 +156,6 @@ class RdtEventController extends Controller
         if (in_array($perPage, $perPageAllowed)) {
             return $perPage;
         }
-        
         return 15;
     }
 }

@@ -10,10 +10,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Auth;
 
 class RdtEventNotifyParticipantController extends Controller
 {
-
     public function __invoke(Request $request, RdtEvent $rdtEvent)
     {
         Gate::authorize('notify-participants');
@@ -45,6 +45,7 @@ class RdtEventNotifyParticipantController extends Controller
             $applicant->notify(new RdtEventInvitation($rdtEvent));
 
             $invitation->notified_at = Carbon::now();
+            $invitation->notified_by = Auth::user()->id;
             $invitation->save();
         }
 

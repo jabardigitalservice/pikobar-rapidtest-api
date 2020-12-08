@@ -36,7 +36,9 @@ class RdtEvent extends Model
         'city_code',
         'start_at',
         'end_at',
-        'status'
+        'status',
+        'created_by',
+        'updated_by'
     ];
 
     /**

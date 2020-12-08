@@ -34,6 +34,7 @@ class RdtInvitation extends Model
         'rdt_applicant_id',
         'attend_location',
         'test_type',
+        'attended_at',
         'lab_result_type',
         'lab_code_sample'
     ];
