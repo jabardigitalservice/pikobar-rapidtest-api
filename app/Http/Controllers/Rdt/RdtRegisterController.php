@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use UrlSigner;
 use App\Entities\RdtEvent;
+use App\Entities\RdtInvitation;
 use Carbon\Carbon;
 
 class RdtRegisterController extends Controller
@@ -32,22 +33,30 @@ class RdtRegisterController extends Controller
         $applicant->save();
 
         $event = RdtEvent::where('event_code', $request->pikobar_session_id)->first();
-
+   
         event(new ApplicantRegistered($applicant));
+
+        $applicantEventSchedule = RdtInvitation::select('rdt_event_schedules.*')
+                                        ->leftJoin('rdt_event_schedules', 'rdt_invitations.rdt_event_schedule_id', 'rdt_event_schedules.id')
+                                        ->where('rdt_invitations.rdt_applicant_id', $applicant->id)
+                                        ->where('rdt_invitations.rdt_event_id', optional($event)->id)
+                                        ->first();
 
         $url = URL::route(
             'registration.download',
             ['registration_code' => $applicant->registration_code]
         );
         return response()->json([
-            'name'              => $applicant->name,
-            'status'            => $applicant->status,
-            'registration_code' => $applicant->registration_code,
-            'event_start_at'    => optional($event)->start_at,
-            'event_end_at'      => optional($event)->end_at,
-            'event_location'    => optional($event)->event_location,
-            'qr_code'           => $applicant->QrCodeUrl,
-            'download_url'      => UrlSigner::sign($url),
+            'name'                      => $applicant->name,
+            'status'                    => $applicant->status,
+            'registration_code'         => $applicant->registration_code,
+            'event_schedule_start_at'   => optional($applicantEventSchedule)->start_at,
+            'event_schedule_end_at'     => optional($applicantEventSchedule)->end_at,
+            'event_start_at'            => optional($event)->start_at,
+            'event_end_at'              => optional($event)->end_at,
+            'event_location'            => optional($event)->event_location,
+            'qr_code'                   => $applicant->QrCodeUrl,
+            'download_url'              => UrlSigner::sign($url),
         ]);
     }
 }

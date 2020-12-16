@@ -15,7 +15,7 @@ class SyncToLabkesController extends Controller
 {
     public function __invoke(RdtEvent $rdtEvent)
     {
-        $labkesUrl      = config('app.labkes_url') . 'backend/api/v1/tes-masif/bulk';
+        $labkesUrl      = config('app.labkes_url') . 'api/v1/tes-masif/bulk';
         $labkesApiKey   = config('app.labkes_api_key');
 
         $data = $this->getDataEventInvitation($rdtEvent);
@@ -52,7 +52,7 @@ class SyncToLabkesController extends Controller
 
             $payloads[] = [
                 'kewarganegaraan'       =>  'WNI',
-                'kategori'              =>  $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY'),
+                'kategori'              =>  $row->workplace_name,
                 'kriteria'              =>  $personStatusValue[$row->person_status],
                 'nama_pasien'           =>  $row->name,
                 'nik'                   =>  $row->nik,
@@ -62,8 +62,8 @@ class SyncToLabkesController extends Controller
                 'jenis_kelamin'         =>  $gender,
                 'provinsi_id'           =>  str_replace('.', '', $row->province_code),
                 'kota_id'               =>  str_replace('.', '', $row->city_code),
-                'kecamatan_id'          =>  str_replace('.', '', $row->district_code),
-                'kelurahan_id'          =>  str_replace('.', '', $row->village_code),
+                'kecamatan_id'          =>  null,
+                'kelurahan_id'          =>  null,
                 'alamat'                =>  $row->address,
                 'rt'                    =>  null,
                 'rw'                    =>  null,
@@ -86,16 +86,19 @@ class SyncToLabkesController extends Controller
             $request            = Http::post($labkesUrl, ['data' => $payloads,'api_key' => $labkesApiKey]);
 
             if ($request->getStatusCode() == 200) {
-                $result     = json_decode($request->getBody()->getContents());
-                $this->addFlagHasSendToLabkes($result);
+                $result                 = json_decode($request->getBody()->getContents());
+                $response['message']    = $this->addFlagHasSendToLabkes($result);
+                $statusCode             = 200;
             } else {
-                $response['message'] = 'Error With Status Code ' . $request->getStatusCode();
+                $response['message']    = 'Error With Status Code ' . $request->getStatusCode();
+                $statusCode             = $request->getStatusCode();
             }
         } catch (Exception $e) {
-            $response['message'] = __('response.sync_failed');
+            $response['message']    = __('response.sync_failed');
+            $statusCode             = 502;
         }
 
-        return response()->json($response);
+        return response()->json($response, $statusCode);
     }
 
     public function addFlagHasSendToLabkes($result)
@@ -105,7 +108,7 @@ class SyncToLabkesController extends Controller
             ->whereIn('lab_code_sample', array_values($result->result->berhasil))
             ->update(['synchronization_at' => now()]);
         }
-        return $response['message'] = count($result->result->berhasil) . __('response.sync_success');
+        return count($result->result->berhasil) . __('response.sync_success');
     }
 
     public function countAge($birthDate, $format)
@@ -126,6 +129,7 @@ class SyncToLabkesController extends Controller
             'rdt_applicants.person_status',
             'rdt_applicants.occupation_type',
             'rdt_applicants.name',
+            'rdt_applicants.workplace_name',
             'rdt_applicants.nik',
             'rdt_applicants.phone_number',
             'rdt_applicants.gender',
