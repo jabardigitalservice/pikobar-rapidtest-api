@@ -10,6 +10,7 @@ use App\Entities\RdtEvent;
 use App\Observers\RdtInvitationObserver;
 use AsyncAws\Core\AwsClientFactory;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +23,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);
+
+        $proxyUrl    = config('proxy.url');
+        $proxyScheme = config('proxy.scheme');
+
+        if (!empty($proxyUrl)) {
+            URL::forceRootUrl($proxyUrl);
+        }
+
+        if (!empty($proxyScheme)) {
+            URL::forceScheme($proxyScheme);
+        }
 
         RdtEvent::observe(RdtEventObserver::class);
         RdtApplicant::observe(RdtApplicantObserver::class);

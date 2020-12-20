@@ -16,17 +16,6 @@ use Illuminate\Support\Facades\URL;
 |
 */
 
-$proxyUrl    = config('proxy.url');
-$proxyScheme = config('proxy.scheme');
-
-if (!empty($proxyUrl)) {
-    URL::forceRootUrl($proxyUrl);
-}
-
-if (!empty($proxyScheme)) {
-    URL::forceScheme($proxyScheme);
-}
-
 Route::get('/', 'HomeController');
 
 Route::post('synctolabkes/{rdtEvent}', 'SyncToLabkesController')->middleware('api');;
