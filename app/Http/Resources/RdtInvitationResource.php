@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
 class RdtInvitationResource extends JsonResource
 {
@@ -14,6 +15,9 @@ class RdtInvitationResource extends JsonResource
      */
     public function toArray($request)
     {
+        $synchronizationAt = Carbon::parse($this->synchronization_at)
+                            ->timezone(config('app.timezone_frontend'))
+                            ->format('Y-m-d h:i:s');
         return [
             'id'                    => $this->id,
             'applicant'             => new RdtApplicantResource($this->whenLoaded('applicant')),
@@ -28,7 +32,7 @@ class RdtInvitationResource extends JsonResource
             'lab_result_type'       => $this->lab_result_type,
             'notified_at'           => $this->notified_at,
             'notified_result_at'    => $this->notified_result_at,
-            'synchronization_at'    => $this->synchronization_at,
+            'synchronization_at'    => $synchronizationAt,
             'attended_at'           => $this->attended_at,
             'result_at'             => $this->result_at,
             'created_at'            => $this->created_at,
