@@ -36,6 +36,7 @@ class RdtEventParticipantAddController extends Controller
 
             // Jika status peserta masih NEW, ubah jadi APPROVED
             $applicant->status = RdtApplicantStatus::APPROVED();
+            $applicant->pikobar_session_id = $rdtEvent->event_code;
             $applicant->save();
 
             // Cek existing undangan/invitation.

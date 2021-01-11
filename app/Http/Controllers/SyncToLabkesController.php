@@ -52,7 +52,7 @@ class SyncToLabkesController extends Controller
 
             $payloads[] = [
                 'kewarganegaraan'       =>  'WNI',
-                'kategori'              =>  $row->workplace_name,
+                'kategori'              =>  $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY'),
                 'kriteria'              =>  $personStatusValue[$row->person_status],
                 'nama_pasien'           =>  $row->name,
                 'nik'                   =>  $row->nik,
@@ -85,16 +85,19 @@ class SyncToLabkesController extends Controller
         try {
             $request            = Http::post($labkesUrl, ['data' => $payloads,'api_key' => $labkesApiKey]);
 
-            if ($request->getStatusCode() == 200) {
+            if ($request->getStatusCode() === 200) {
                 $result                 = json_decode($request->getBody()->getContents());
                 $response['message']    = $this->addFlagHasSendToLabkes($result);
+                $response['result']     = ['succes' => $result->result->berhasil , 'failed' => $result->result->gagal];
                 $statusCode             = 200;
             } else {
                 $response['message']    = 'Error With Status Code ' . $request->getStatusCode();
+                $response['result']     = null;
                 $statusCode             = $request->getStatusCode();
             }
         } catch (Exception $e) {
             $response['message']    = __('response.sync_failed');
+            $response['result']     = null;
             $statusCode             = 502;
         }
 
@@ -144,6 +147,7 @@ class SyncToLabkesController extends Controller
             'fasyankes.id as fasyankes_id',
             'rdt_events.start_at',
             'rdt_events.end_at',
+            'fasyankes.id as fasyankes_id',
             'rdt_events.event_location',
             'city.name as city',
             'district.name as district',

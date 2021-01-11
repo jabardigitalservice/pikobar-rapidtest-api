@@ -32,7 +32,7 @@ class RdtRegisterRequest extends FormRequest
         return [
             'g-recaptcha-response' => ['required', new RecaptchaRule()],
             'name'                 => ['required', 'min:3'],
-            'nik'                  => ['required', 'unique:rdt_applicants', new NikRule()],
+            'nik'                  => ['required' , new NikRule()],
             'address'              => 'required',
             'city_code'            => ['required', 'exists:areas,code_kemendagri'],
             'district_code'        => ['required', 'exists:areas,code_kemendagri'],

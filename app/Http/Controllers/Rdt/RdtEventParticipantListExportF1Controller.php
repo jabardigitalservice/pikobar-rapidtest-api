@@ -142,6 +142,9 @@ class RdtEventParticipantListExportF1Controller extends Controller
             $attendedAt = Carbon::parse($row->attended_at)
                             ->timezone(config('app.timezone_frontend'))
                             ->format('Y-m-d');
+
+            $eventStartAt = Carbon::parse($rdtEvent->start_at)->format('dmY');
+            
             $row =  [
                         $row->number,
                         $row->lab_code_sample ,
@@ -149,7 +152,7 @@ class RdtEventParticipantListExportF1Controller extends Controller
                         $row->host_name,
                         '',
                         '',
-                        $row->workplace_name,
+                        $rdtEvent->event_name . ' ' . $eventStartAt,
                         $personStatusValue[$row->person_status] ?? null,
                         $row->name,
                         $row->nik,

@@ -55,6 +55,7 @@ class RdtInvitation extends Model
         'notified_result_at',
         'confirmed_at',
         'result_at',
+        'synchronization_at',
     ];
 
     public function applicant()

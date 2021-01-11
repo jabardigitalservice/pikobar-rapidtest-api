@@ -15,6 +15,9 @@ class FasyankesListController extends Controller
         if ($request->has('name')) {
             $fasyankes->where('name', 'like', '%' . $request->input('name') . '%');
         }
+        if ($request->has('type')) {
+            $fasyankes->where('type', $request->type);
+        }
         return FasyankesResource::collection($fasyankes->orderBy('name')->get());
     }
 }

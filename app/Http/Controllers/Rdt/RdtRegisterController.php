@@ -26,11 +26,9 @@ class RdtRegisterController extends Controller
     public function __invoke(RdtRegisterRequest $request)
     {
         Log::info('APPLICANT_REGISTER_REQUEST', $request->all());
-
-        $applicant         = new RdtApplicant();
-        $applicant->status = RdtApplicantStatus::NEW();
-        $applicant->fill($request->all());
-        $applicant->save();
+        $payloads           = $request->all();
+        $payloads['status'] = RdtApplicantStatus::NEW();
+        $applicant = RdtApplicant::updateOrCreate(['nik' => $request->nik], $payloads);
 
         $event = RdtEvent::where('event_code', $request->pikobar_session_id)->first();
    
