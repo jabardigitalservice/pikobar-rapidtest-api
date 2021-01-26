@@ -24,8 +24,9 @@ pipeline {
             steps {
                 script {
                     registryImage.inside('--entrypoint=') {
+                        sh 'apk --no-cache add pdo-sqlite'
                         sh 'cp .env-example .env'
-                        sh 'composer install --dev --no-progress'
+                        sh 'composer install --no-progress'
                         sh 'php artisan key:generate --ansi'
                         sh 'php vendor/bin/phpcs --standard=phpcs.xml'
                         sh 'php vendor/bin/phpunit --configuration=phpunit.xml'
