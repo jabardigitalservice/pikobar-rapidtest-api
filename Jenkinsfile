@@ -12,22 +12,24 @@ pipeline {
     }
 
     stages {
-        stage("linter") {
-            agent {
-                docker {
-                    image 'cytopia/phpcs'
-                    args '--entrypoint='
-                }
-            }
-            steps {
-                sh 'phpcs --standard=phpcs.xml'
-            }
-        }
-
         stage("build") {
             steps {
                 script {
                     registryImage = docker.build registryBaseImageTag + ":$SHORT_COMMIT"
+                }
+            }
+        }
+
+        stage("test") {
+            agent {
+                docker {
+                    args '--entrypoint='
+                }
+            }
+            steps {
+                registryImage.inside {
+                    sh 'composer install --dev'
+                    sh 'phpcs --standard=phpcs.xml'
                 }
             }
         }
