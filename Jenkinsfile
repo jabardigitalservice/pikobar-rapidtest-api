@@ -20,6 +20,16 @@ pipeline {
             }
         }
 
+        stage("test") {
+            steps {
+                script {
+                    registryImage.inside {
+                        sh 'php vendor/bin/phpcs .'
+                    }
+                }
+            }
+        }
+
         stage("deploy") {
             when { branch 'develop' }
             steps {
