@@ -22,9 +22,11 @@ pipeline {
 
         stage("test") {
             steps {
-                registryImage.inside('--entrypoint=') {
-                    sh 'composer install --dev'
-                    sh 'phpcs --standard=phpcs.xml'
+                script {
+                    registryImage.inside('--entrypoint=') {
+                        sh 'composer install --dev'
+                        sh 'phpcs --standard=phpcs.xml'
+                    }
                 }
             }
         }
