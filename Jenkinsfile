@@ -14,8 +14,10 @@ pipeline {
     stages {
         stage("linter") {
             agent {
-                docker { image 'cytopia/phpcs' }
-                args '--entrypoint='
+                docker {
+                    image 'cytopia/phpcs'
+                    args '--entrypoint='
+                }
             }
             steps {
                 sh 'phpcs .'
