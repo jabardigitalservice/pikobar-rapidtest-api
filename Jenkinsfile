@@ -12,20 +12,19 @@ pipeline {
     }
 
     stages {
+        stage("linter") {
+            agent {
+                docker { image 'cytopia/phpcs' }
+            }
+            steps {
+                sh 'phpcs .'
+            }
+        }
+
         stage("build") {
             steps {
                 script {
                     registryImage = docker.build registryBaseImageTag + ":$SHORT_COMMIT"
-                }
-            }
-        }
-
-        stage("test") {
-            steps {
-                script {
-                    registryImage.inside {
-                        sh 'php vendor/bin/phpcs .'
-                    }
                 }
             }
         }
