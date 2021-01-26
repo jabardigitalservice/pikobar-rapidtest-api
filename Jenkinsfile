@@ -24,8 +24,9 @@ pipeline {
             steps {
                 script {
                     registryImage.inside('--entrypoint=') {
-                        sh 'composer install --dev'
-                        sh 'phpcs --standard=phpcs.xml'
+                        sh 'composer install --dev --no-progress'
+                        sh 'php vendor/bin/phpcs --standard=phpcs.xml'
+                        sh 'php vendor/bin/phpunit'
                     }
                 }
             }
