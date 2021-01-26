@@ -26,7 +26,7 @@ pipeline {
                     registryImage.inside('--entrypoint=') {
                         sh 'composer install --dev --no-progress'
                         sh 'php vendor/bin/phpcs --standard=phpcs.xml'
-                        sh 'php vendor/bin/phpunit'
+                        sh 'php vendor/bin/phpunit --configuration=phpunit.xml'
                     }
                 }
             }
