@@ -21,13 +21,8 @@ pipeline {
         }
 
         stage("test") {
-            agent {
-                docker {
-                    args '--entrypoint='
-                }
-            }
             steps {
-                registryImage.inside {
+                registryImage.inside('--entrypoint=') {
                     sh 'composer install --dev'
                     sh 'phpcs --standard=phpcs.xml'
                 }
