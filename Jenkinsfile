@@ -20,7 +20,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'phpcs .'
+                sh 'phpcs --standard=phpcs.xml'
             }
         }
 
