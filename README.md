@@ -32,11 +32,21 @@ Copy file config dan sesuaikan konfigurasinya
 ```
 $ copy .env-example .env
 ```
+Generate APP_KEY to .env
+```
+$ php artisan key:generate
 
 Install dependencies menggunakan Composer"
 ```
 $ composer install
 ```
+Publish config UrlSigner
+```
+$ php artisan vendor:publish --provider="Spatie\UrlSigner\Laravel\UrlSignerServiceProvider"
+
+Clear and confid cache
+```
+$ php artisan config:cache
 
 Jalankan Artisan untuk migrasi dan seed database:
 ```
