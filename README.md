@@ -40,9 +40,6 @@ Install dependencies menggunakan Composer"
 ```
 $ composer install
 ```
-Publish config UrlSigner
-```
-$ php artisan vendor:publish --provider="Spatie\UrlSigner\Laravel\UrlSignerServiceProvider"
 
 Clear and confid cache
 ```
