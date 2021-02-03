@@ -45,7 +45,7 @@ class RdtApplicantController extends Controller
         $statusEnum = 'new';
 
         if ($status === 'new') {
-            $statusEnum = RdtApplicantStatus::NEW ();
+            $statusEnum = RdtApplicantStatus::NEW();
         }
 
         if ($status === 'approved') {
