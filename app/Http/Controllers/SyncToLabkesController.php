@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Entities\RdtEvent;
-use DB;
 use Carbon\Carbon;
-use App\Enums\PersonCaseStatusEnum;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
+use DB;
 use Exception;
+use Illuminate\Support\Facades\Http;
 
 class SyncToLabkesController extends Controller
 {
     public function __invoke(RdtEvent $rdtEvent)
     {
-        $labkesUrl    = config('app.labkes_url') . 'api/v1/tes-masif/bulk';
+        $labkesUrl = config('app.labkes_url') . 'api/v1/tes-masif/bulk';
         $labkesApiKey = config('app.labkes_api_key');
 
         $data = $this->getDataEventInvitation($rdtEvent);
@@ -25,15 +22,15 @@ class SyncToLabkesController extends Controller
         }
 
         $personStatusValue = [
-            'CONFIRMED'     => 'konfirmasi',
-            'SUSPECT'       => 'suspek',
-            'PROBABLE'      => 'probable',
+            'CONFIRMED' => 'konfirmasi',
+            'SUSPECT' => 'suspek',
+            'PROBABLE' => 'probable',
             'CLOSE_CONTACT' => 'kontak erat',
-            'NOT_ALL'       => 'tanpa kriteria',
-            'UNKNOWN'       => 'tanpa kriteria',
-            'ODP'           => 'tanpa kriteria',
-            'OTG'           => 'tanpa kriteria',
-            'PDP'           => 'tanpa kriteria'
+            'NOT_ALL' => 'tanpa kriteria',
+            'UNKNOWN' => 'tanpa kriteria',
+            'ODP' => 'tanpa kriteria',
+            'OTG' => 'tanpa kriteria',
+            'PDP' => 'tanpa kriteria',
         ];
 
         $payloads = [];
@@ -51,54 +48,53 @@ class SyncToLabkesController extends Controller
             $attendedAt->setTimezone(config('app.timezone_frontend'));
 
             $payloads[] = [
-                'kewarganegaraan'   => 'WNI',
-                'kategori'          => $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY'),
-                'kriteria'          => $personStatusValue[$row->person_status],
-                'nama_pasien'       => $row->name,
-                'nik'               => $row->nik,
+                'kewarganegaraan' => 'WNI',
+                'kategori' => $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY'),
+                'kriteria' => $personStatusValue[$row->person_status],
+                'nama_pasien' => $row->name,
+                'nik' => $row->nik,
                 'registration_code' => $row->registration_code,
-                'tempat_lahir'      => $row->birth_place,
-                'tanggal_lahir'     => Carbon::parse($row->birth_date)->format('d-m-Y'),
-                'jenis_kelamin'     => $gender,
-                'provinsi_id'       => str_replace('.', '', $row->province_code),
-                'kota_id'           => str_replace('.', '', $row->city_code),
-                'kecamatan_id'      => null,
-                'kelurahan_id'      => null,
-                'alamat'            => $row->address,
-                'rt'                => null,
-                'rw'                => null,
-                'no_hp'             => $row->phone_number,
-                'suhu'              => null,
-                'nomor_sampel'      => $row->lab_code_sample,
-                'keterangan'        => null,
-                'hasil_rdt'         => null,
-                'usia_tahun'        => $this->countAge($row->birth_date, 'y'),
-                'usia_bulan'        => $this->countAge($row->birth_date, 'm'),
-                'kunjungan'         => 1,
-                'jenis_registrasi'  => 'mandiri',
-                'fasyankes_id'      => $row->fasyankes_id,
+                'tempat_lahir' => $row->birth_place,
+                'tanggal_lahir' => Carbon::parse($row->birth_date),
+                'jenis_kelamin' => $gender,
+                'provinsi_id' => str_replace('.', '', $row->province_code),
+                'kota_id' => str_replace('.', '', $row->city_code),
+                'kecamatan_id' => null,
+                'kelurahan_id' => null,
+                'alamat' => $row->address,
+                'rt' => null,
+                'rw' => null,
+                'no_hp' => $row->phone_number,
+                'suhu' => null,
+                'nomor_sampel' => $row->lab_code_sample,
+                'keterangan' => null,
+                'hasil_rdt' => null,
+                'usia_tahun' => $this->countAge($row->birth_date, 'y'),
+                'usia_bulan' => $this->countAge($row->birth_date, 'm'),
+                'kunjungan' => 1,
+                'jenis_registrasi' => 'mandiri',
+                'fasyankes_id' => $row->fasyankes_id,
                 'tanggal_kunjungan' => $attendedAt->toDateTimeString(),
-                'rs_kunjungan'      => $row->attend_location
+                'rs_kunjungan' => $row->attend_location,
             ];
         }
 
         try {
             $request = Http::post($labkesUrl, ['data' => $payloads, 'api_key' => $labkesApiKey]);
-
             if ($request->getStatusCode() === 200) {
-                $result              = json_decode($request->getBody()->getContents());
+                $result = json_decode($request->getBody()->getContents());
                 $response['message'] = $this->addFlagHasSendToLabkes($result);
-                $response['result']  = ['succes' => $result->result->berhasil, 'failed' => $result->result->gagal];
-                $statusCode          = 200;
+                $response['result'] = ['succes' => $result->result->berhasil, 'failed' => $result->result->gagal];
+                $statusCode = 200;
             } else {
-                $response['message'] = 'Error With Status Code ' . $request->getStatusCode();
-                $response['result']  = null;
-                $statusCode          = $request->getStatusCode();
+                $response['message'] = json_decode($request->getBody()->getContents());
+                $response['result'] = null;
+                $statusCode = $request->getStatusCode();
             }
         } catch (Exception $e) {
             $response['message'] = __('response.sync_failed');
-            $response['result']  = null;
-            $statusCode          = 502;
+            $response['result'] = null;
+            $statusCode = 502;
         }
 
         return response()->json($response, $statusCode);
