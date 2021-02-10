@@ -22,8 +22,12 @@ class RdtEventParticipantSetLabCodeController extends Controller
          */
         $rdtInvitation                  = RdtInvitation::findOrFail($request->input('rdt_invitation_id'));
         $rdtInvitation->lab_code_sample = $request->input('lab_code_sample');
-        $rdtInvitation->attended_at == null ? $rdtInvitation->attended_at = Carbon::now() : $rdtInvitation->attended_at;
-        $rdtInvitation->attend_location == null ? $rdtInvitation->attend_location = $rdtInvitation->event->event_location : $rdtInvitation->attend_location;
+        if ($rdtInvitation->attended_at === null) {
+            $rdtInvitation->attended_at = Carbon::now();
+        }
+        if ($rdtInvitation->attend_location === null) {
+            $rdtInvitation->attend_location = $rdtInvitation->event->event_location;
+        }
         $rdtInvitation->save();
 
         return response()->json(['status' => 'OK']);
