@@ -22,7 +22,7 @@ class RdtApplicantController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 15);
-        $sortBy = $request->input('sort_by', 'created_at');
+        $sortBy = $request->input('sort_by', 'updated_at');
         $sortOrder = $request->input('sort_order', 'desc');
         $status = $request->input('status', 'new');
         $search = $request->input('search');
@@ -34,7 +34,7 @@ class RdtApplicantController extends Controller
 
         $perPage = $this->getPaginationSize($perPage);
 
-        if (in_array($sortBy, ['id', 'name', 'gender', 'age', 'person_status', 'created_at']) === false) {
+        if (in_array($sortBy, ['id', 'name', 'gender', 'age', 'person_status', 'updated_at']) === false) {
             $sortBy = 'name';
         }
 
