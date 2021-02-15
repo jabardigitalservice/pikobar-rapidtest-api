@@ -72,7 +72,7 @@ class RdtApplicantController extends Controller
         }
 
         if ($registrationDateStart) {
-            $records->whereBetween(DB::raw('CAST(created_at AS DATE)'), [$registrationDateStart, $registrationDateEnd]);
+            $records->whereBetween(DB::raw('CAST(updated_at AS DATE)'), [$registrationDateStart, $registrationDateEnd]);
         }
 
         if ($personStatus) {
