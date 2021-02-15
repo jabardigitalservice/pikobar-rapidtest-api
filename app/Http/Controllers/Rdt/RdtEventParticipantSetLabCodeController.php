@@ -24,7 +24,9 @@ class RdtEventParticipantSetLabCodeController extends Controller
         $rdtInvitation = RdtInvitation::findOrFail($request->input('rdt_invitation_id'));
 
         // validasi if kode sample sudah digunakan
-        if (RdtInvitation::query()->where('lab_code_sample', $request->input('lab_code_sample'))->count() > 0) {
+        $inputCodeSample = $request->input('lab_code_sample');
+        $labCodeSampleCount = RdtInvitation::query()->where('lab_code_sample', $inputCodeSample)->count();
+        if ($labCodeSampleCount > 0) {
             return response()->json([
                 'message' => 'Kode sample sudah ada atau sudah digunakan oleh peserta lain.',
             ], HttpResponse::HTTP_BAD_REQUEST);
