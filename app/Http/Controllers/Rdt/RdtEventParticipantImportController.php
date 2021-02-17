@@ -18,11 +18,9 @@ use Illuminate\Support\Facades\Log;
 
 class RdtEventParticipantImportController extends Controller
 {
-    const NOTIFY_SMS = 'sms';
-
-    const NOTIFY_WA = 'wa';
-
-    const NOTIFY_BOTH = 'both';
+    public const NOTIFY_SMS = 'sms';
+    public const NOTIFY_WA = 'wa';
+    public const NOTIFY_BOTH = 'both';
 
     public function __invoke(RdtInvitationImportRequest $request, RdtEvent $rdtEvent)
     {

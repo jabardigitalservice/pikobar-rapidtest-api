@@ -11,7 +11,7 @@ class SymptomsInteraction extends Enum
         return new class () extends SymptomsInteraction {
             public function getValue(): string
             {
-                return 0;
+                return '0';
             }
         };
     }
@@ -21,7 +21,7 @@ class SymptomsInteraction extends Enum
         return new class () extends SymptomsInteraction {
             public function getValue(): string
             {
-                return 1;
+                return '1';
             }
         };
     }

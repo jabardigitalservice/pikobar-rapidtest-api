@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use App\Enums\Gender;
 use App\Enums\PersonCaseStatusEnum;
 use App\Enums\RdtApplicantStatus;
 use App\Enums\SymptomsInteraction;
@@ -40,7 +41,8 @@ class RdtApplicant extends Model
         'email', 'phone_number', 'gender', 'birth_date', 'occupation_type', 'occupation_name', 'workplace_name',
         'is_pns',
         'symptoms', 'symptoms_notes', 'symptoms_interaction', 'symptoms_activity', 'person_status', 'status',
-        'latitude', 'longitude', 'pikobar_session_id', 'pikobar_user_id', 'city_visited' , 'congenital_disease' , 'have_interacted', 'birth_place'
+        'latitude', 'longitude', 'pikobar_session_id', 'pikobar_user_id', 'city_visited', 'congenital_disease',
+        'have_interacted', 'birth_place',
     ];
 
     /**
@@ -61,13 +63,14 @@ class RdtApplicant extends Model
      * @var array
      */
     protected $casts = [
-        'symptoms'          => 'array',
-        'symptoms_activity' => 'array',
+        'symptoms'           => 'array',
+        'symptoms_activity'  => 'array',
         'congenital_disease' => 'array',
-        'is_pns'            => 'boolean',
+        'is_pns'             => 'boolean',
     ];
 
     protected $enums = [
+        'gender'               => Gender::class . ':nullable',
         'symptoms_interaction' => SymptomsInteraction::class . ':nullable',
         'person_status'        => PersonCaseStatusEnum::class . ':nullable',
         'status'               => RdtApplicantStatus::class,

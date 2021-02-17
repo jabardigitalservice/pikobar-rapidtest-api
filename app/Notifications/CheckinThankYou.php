@@ -70,7 +70,13 @@ Tempat: *{$this->rdtEvent->event_location}*
 *Hasil tes akan diberitahukan melalui SMS, Whatsapp, dan Website.*
 Buka https://tesmasif.pikobar.jabarprov.go.id dan masukkan Nomor Pendaftaran.
 
-Selama menunggu hasil tes, Anda diharapkan tetap memperbanyak aktivitas di rumah, menggunakan masker jika berpergian, menjaga jarak dan protokol kesehatan, serta melakukan pola hidup bersih dan sehat (PHBS).
+Selama menunggu hasil tes, Anda diharapkan tetap memperbanyak aktivitas di rumah
+EOT .
+        <<<EOT
+ menggunakan masker jika berpergian, menjaga jarak dan protokol kesehatan,
+EOT .
+        <<<EOT
+ serta melakukan pola hidup bersih dan sehat (PHBS).
 
 Hatur nuhun.
 EOT;

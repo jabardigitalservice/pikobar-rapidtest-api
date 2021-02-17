@@ -13,5 +13,5 @@ return [
     */
 
     'sync_failed' => 'gagal melakukan sinkronsiasi ke server tujuan',
-    'sync_success'=> 'data berhasil terkirim'
+    'sync_success' => 'data berhasil terkirim'
 ];

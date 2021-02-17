@@ -18,7 +18,7 @@ class RdtEventObserver
     public function creating(RdtEvent $rdtEvent)
     {
         $rdtEvent->province_code = '32';
-        $rdtEvent->created_by    = Auth::user()->id;
+        $rdtEvent->created_by    = Auth::check() ? Auth::user()->id : null;
         $rdtEvent->event_code    = $this->generateUniqueEventCode();
     }
 

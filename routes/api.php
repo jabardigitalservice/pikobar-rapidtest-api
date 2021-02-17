@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\URL;
 
 Route::get('/', 'HomeController');
 
-Route::post('synctolabkes/{rdtEvent}', 'SyncToLabkesController')->middleware('api');;
+Route::post('synctolabkes/{rdtEvent}', 'SyncToLabkesController')->middleware('api');
 // RDT Registration
 Route::post('rdt/register', 'Rdt\RdtRegisterController');
 Route::get('rdt/check-event', 'Rdt\RdtCheckEventController');

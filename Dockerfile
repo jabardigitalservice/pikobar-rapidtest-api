@@ -12,7 +12,7 @@ RUN echo "https://dl.bintray.com/php-alpine/v3.11/php-7.4" >> /etc/apk/repositor
 
 # Install packages
 RUN apk --no-cache add php php-fpm php-opcache php-json php-openssl php-curl php-phar php-session \
-    php-pdo php-pdo_mysql php-mysqli \
+    php-pdo php-pdo_mysql php-mysqli php-pdo_sqlite \
     php-mbstring php-dom php-gd php-iconv php-bcmath php-gmp php-zip \
     php-zlib php-xml php-intl php-dom php-xml php-xmlreader php-ctype \
     nginx supervisor curl
