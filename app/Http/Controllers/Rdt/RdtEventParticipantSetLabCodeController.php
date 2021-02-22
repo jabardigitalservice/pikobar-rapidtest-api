@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Rdt;
 
+use App\Entities\RdtEvent;
 use App\Entities\RdtInvitation;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -16,7 +17,7 @@ class RdtEventParticipantSetLabCodeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(Request $request)
+    public function __invoke(RdtEvent $rdtEvent, Request $request)
     {
         /**
          * @var RdtInvitation $rdtInvitation
@@ -25,12 +26,17 @@ class RdtEventParticipantSetLabCodeController extends Controller
 
         // validasi if kode sample sudah digunakan
         $inputCodeSample = $request->input('lab_code_sample');
-        $labCodeSampleCount = RdtInvitation::query()->where('lab_code_sample', $inputCodeSample)->count();
-        if ($labCodeSampleCount > 0) {
+        $labCodeSampleCount = RdtInvitation::query()
+            ->where('lab_code_sample', $inputCodeSample)
+            ->where('rdt_event_id', $rdtEvent->id)
+            ->exists();
+
+        if ($labCodeSampleCount) {
             return response()->json([
                 'message' => 'Kode sample sudah ada atau sudah digunakan oleh peserta lain.',
             ], HttpResponse::HTTP_BAD_REQUEST);
         }
+
         $rdtInvitation->lab_code_sample = $request->input('lab_code_sample');
 
         if ($rdtInvitation->attended_at === null) {
