@@ -53,7 +53,7 @@ class RdtRegisterTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'g-recaptcha-response', 'nik', 'name', 'address', 'city_code', 'district_code', 'village_code', 'phone_number',
-                'gender', 'birth_date', 'occupation_type', 'symptoms', 'symptoms_notes'
+                'gender', 'birth_date', 'occupation_type', 'symptoms'
             ]);
     }
 }
