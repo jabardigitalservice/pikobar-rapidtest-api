@@ -89,7 +89,7 @@ class SyncToLabkesController extends Controller
             } else {
                 $result = json_decode($request->getBody()->getContents());
                 $response['message'] = $this->addFlagFailedSendToLabkes($result);
-                $response['result'] = null;
+                $response['result'] = ['success' => $result->result->berhasil, 'failed' => $result->result->gagal];
                 $statusCode = $request->getStatusCode();
             }
         } catch (Exception $e) {
