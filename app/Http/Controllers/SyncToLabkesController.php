@@ -6,6 +6,7 @@ use App\Entities\RdtEvent;
 use Carbon\Carbon;
 use DB;
 use Exception;
+use Illuminate\Http\Response as HTTP_Response;
 use Illuminate\Support\Facades\Http;
 
 class SyncToLabkesController extends Controller
@@ -81,21 +82,21 @@ class SyncToLabkesController extends Controller
 
         try {
             $request = Http::post($labkesUrl, ['data' => $payloads, 'api_key' => $labkesApiKey]);
-            if ($request->getStatusCode() === 200) {
+            if ($request->getStatusCode() === HTTP_Response::HTTP_OK) {
                 $result = json_decode($request->getBody()->getContents());
                 $response['message'] = $this->addFlagHasSendToLabkes($result);
                 $response['result'] = ['success' => $result->result->berhasil, 'failed' => $result->result->gagal];
-                $statusCode = 200;
+                $statusCode = HTTP_Response::HTTP_OK;
             } else {
                 $result = json_decode($request->getBody()->getContents());
                 $response['message'] = $this->addFlagFailedSendToLabkes($result);
                 $response['result'] = ['failed' => $result->result->gagal];
-                $statusCode = $request->getStatusCode();
+                $statusCode = HTTP_Response::HTTP_UNPROCESSABLE_ENTITY;
             }
         } catch (Exception $e) {
             $response['message'] = __('response.sync_failed');
             $response['result'] = null;
-            $statusCode = 502;
+            $statusCode = HTTP_Response::HTTP_BAD_GATEWAY;
         }
 
         return response()->json($response, $statusCode);
