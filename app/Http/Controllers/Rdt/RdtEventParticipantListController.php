@@ -18,17 +18,16 @@ class RdtEventParticipantListController extends Controller
      */
     public function __invoke(Request $request, RdtEvent $rdtEvent)
     {
-        $perPage   = $request->input('per_page', 15);
-        $sortBy    = $request->input('sort_by', 'created_at');
+        $perPage = $request->input('per_page', 15);
+        $sortBy = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
-        $search    = $request->input('search');
+        $search = $request->input('search');
 
         $perPage = $this->getPaginationSize($perPage);
 
         $records = $rdtEvent->invitations();
         $records->select('rdt_invitations.*')
             ->join('rdt_applicants', 'rdt_invitations.rdt_applicant_id', '=', 'rdt_applicants.id');
-
         $records->where('rdt_invitations.rdt_event_id', $rdtEvent->id);
         $records->whereNull('rdt_applicants.deleted_at');
 

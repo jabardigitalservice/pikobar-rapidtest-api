@@ -45,8 +45,7 @@ class RdtRegisterRequest extends FormRequest
             'occupation_type'      => ['required', 'integer'],
             'workplace_name'       => 'required',
             'symptoms'             => 'required',
-            'symptoms_notes'       => 'required',
-            'have_interacted'      => 'sometimes|required',
+            'symptoms_notes'       => 'nullable',
             'congenital_disease'   => 'sometimes|required',
             'birth_place'          => 'sometimes|required|max:60'
         ];

@@ -6,6 +6,7 @@ use App\Entities\RdtEvent;
 use Carbon\Carbon;
 use DB;
 use Exception;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 
 class SyncToLabkesController extends Controller
@@ -81,20 +82,21 @@ class SyncToLabkesController extends Controller
 
         try {
             $request = Http::post($labkesUrl, ['data' => $payloads, 'api_key' => $labkesApiKey]);
-            if ($request->getStatusCode() === 200) {
+            if ($request->getStatusCode() === Response::HTTP_OK) {
                 $result = json_decode($request->getBody()->getContents());
                 $response['message'] = $this->addFlagHasSendToLabkes($result);
                 $response['result'] = ['success' => $result->result->berhasil, 'failed' => $result->result->gagal];
-                $statusCode = 200;
+                $statusCode = Response::HTTP_OK;
             } else {
-                $response['message'] = json_decode($request->getBody()->getContents());
-                $response['result'] = null;
-                $statusCode = $request->getStatusCode();
+                $result = json_decode($request->getBody()->getContents());
+                $response['message'] = $this->addFlagFailedSendToLabkes($result);
+                $response['result'] = ['failed' => $result->result->gagal];
+                $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
             }
         } catch (Exception $e) {
             $response['message'] = __('response.sync_failed');
             $response['result'] = null;
-            $statusCode = 502;
+            $statusCode = Response::HTTP_BAD_GATEWAY;
         }
 
         return response()->json($response, $statusCode);
@@ -105,9 +107,21 @@ class SyncToLabkesController extends Controller
         if (count($result->result->berhasil) > 0) {
             DB::table('rdt_invitations')
                 ->whereIn('lab_code_sample', array_values($result->result->berhasil))
-                ->update(['synchronization_at' => now()]);
+                ->update(['synchronization_at' => now(), 'status_on_simlab' => 'SENT']);
         }
         return count($result->result->berhasil) . ' ' . __('response.sync_success');
+    }
+
+    public function addFlagFailedSendToLabkes($result)
+    {
+        if (count($result->result->gagal) > 0) {
+            $resultFailed = collect($result->result->gagal)->pluck('nomor_sampel')->toArray();
+
+            DB::table('rdt_invitations')
+                ->whereIn('lab_code_sample', array_values($resultFailed))
+                ->update(['status_on_simlab' => 'FAILED']);
+        }
+        return count($result->result->gagal) . ' ' . __('response.sync_failed');
     }
 
     public function countAge($birthDate, $format)
