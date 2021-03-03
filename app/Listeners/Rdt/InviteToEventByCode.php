@@ -79,17 +79,31 @@ class InviteToEventByCode
             return;
         }
 
-        $invitation = new RdtInvitation();
-        $invitation->registration_code = $applicant->registration_code;
+        $invitation = RdtInvitation::where('registration_code', $applicant->registration_code)->first();
+        if ($invitation) {
+            $invitation = RdtInvitation::updateOrCreate(
+                ['registration_code' => $applicant->registration_code],
+                [
+                $invitation->registration_code = $applicant->registration_code,
+                $invitation->event()->associate($rdtEvent),
+                $invitation->applicant()->associate($applicant),
+                $firstEventSchedule = $rdtEvent->schedules()->first(),
+                $invitation->rdt_event_schedule_id = $firstEventSchedule->id
+                ]
+            );
+        } else {
+            $invitation = new RdtInvitation();
+            $invitation->registration_code = $applicant->registration_code;
 
-        $invitation->event()->associate($rdtEvent);
-        $invitation->applicant()->associate($applicant);
-        if ($applicant->pikobar_session_id != null) {
-            $firstEventSchedule = $rdtEvent->schedules()->first();
-            $invitation->rdt_event_schedule_id = $firstEventSchedule->id;
+            $invitation->event()->associate($rdtEvent);
+            $invitation->applicant()->associate($applicant);
+            if ($applicant->pikobar_session_id != null) {
+                $firstEventSchedule = $rdtEvent->schedules()->first();
+                $invitation->rdt_event_schedule_id = $firstEventSchedule->id;
+            }
+
+            $invitation->save();
         }
-        
-        $invitation->save();
 
         $applicant->status = RdtApplicantStatus::APPROVED();
         $applicant->save();
