@@ -6,8 +6,6 @@ use App\Entities\RdtEvent;
 use App\Entities\RdtInvitation;
 use App\Enums\RdtApplicantStatus;
 use App\Events\Rdt\ApplicantRegistered;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
 class InviteToEventByCode
@@ -79,31 +77,15 @@ class InviteToEventByCode
             return;
         }
 
-        $invitation = RdtInvitation::where('registration_code', $applicant->registration_code)->first();
-        if ($invitation) {
-            $invitation = RdtInvitation::updateOrCreate(
-                ['registration_code' => $applicant->registration_code],
-                [
-                $invitation->registration_code = $applicant->registration_code,
-                $invitation->event()->associate($rdtEvent),
-                $invitation->applicant()->associate($applicant),
-                $firstEventSchedule = $rdtEvent->schedules()->first(),
-                $invitation->rdt_event_schedule_id = $firstEventSchedule->id
-                ]
-            );
-        } else {
-            $invitation = new RdtInvitation();
-            $invitation->registration_code = $applicant->registration_code;
-
-            $invitation->event()->associate($rdtEvent);
-            $invitation->applicant()->associate($applicant);
-            if ($applicant->pikobar_session_id != null) {
-                $firstEventSchedule = $rdtEvent->schedules()->first();
-                $invitation->rdt_event_schedule_id = $firstEventSchedule->id;
-            }
-
-            $invitation->save();
+        $invitation = RdtInvitation::firstOrNew(['registration_code' => $applicant->registration_code]);
+        $invitation->registration_code = $applicant->registration_code;
+        $invitation->event()->associate($rdtEvent);
+        $invitation->applicant()->associate($applicant);
+        if ($applicant->pikobar_session_id != null) {
+            $firstEventSchedule = $rdtEvent->schedules()->first();
+            $invitation->rdt_event_schedule_id = $firstEventSchedule->id;
         }
+        $invitation->save();
 
         $applicant->status = RdtApplicantStatus::APPROVED();
         $applicant->save();
