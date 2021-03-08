@@ -61,4 +61,11 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          script: whoami
+          script: |
+            # entering into apps directory
+            cd ~apps/
+            git pull origin develop
+            git status
+            composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+            php artisan key:generate
+            php artisan migrate
