@@ -1,12 +1,10 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI/CD
+name: CI
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the develop branch
-  push:
-    branches: [ develop ]
   pull_request:
     branches: [ develop ]
 
@@ -53,18 +51,3 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: vendor/bin/phpunit
-
-      - name: Deploy to Caprover!
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            cd ~apps/
-            git pull origin develop
-            git status
-            composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-            php artisan key:generate
-            php artisan migrate
