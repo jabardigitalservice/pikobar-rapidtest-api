@@ -12,6 +12,6 @@ return [
     |
     */
 
-    'sync_failed' => 'Data Gagal Dikirim ke Aplikasi SIM Lab',
-    'sync_success' => 'Data Berhasil Terkirim'
+    'sync_failed' => 'Data Gagal Dikirim ke Aplikasi SIM Lab.',
+    'sync_success' => 'Data Berhasil Terkirim.'
 ];
