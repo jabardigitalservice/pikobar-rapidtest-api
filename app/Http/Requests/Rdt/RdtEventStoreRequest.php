@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Rdt;
 
+use App\Enums\JenisRegistrasi;
 use App\Enums\RdtEventStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Spatie\Enum\Laravel\Rules\EnumValueRule;
@@ -34,6 +35,7 @@ class RdtEventStoreRequest extends FormRequest
             'end_at'         => ['required', 'date'],
             'schedules'      => ['required', 'array'],
             'status'         => ['required', new EnumValueRule(RdtEventStatus::class)],
+            'jenis_registrasi' => ['nullable', new EnumValueRule(JenisRegistrasi::class)],
         ];
     }
 }

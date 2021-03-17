@@ -23,15 +23,19 @@ class RdtEventController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage   = $request->input('per_page', 15);
-        $sortBy    = $request->input('sort_by', 'created_at');
+        $perPage = $request->input('per_page', 15);
+        $sortBy = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
-        $status    = $request->input('status', 'all');
-        $search    = $request->input('search');
+        $status = $request->input('status', 'all');
+        $search = $request->input('search');
 
         $perPage = $this->getPaginationSize($perPage);
 
-        if (in_array($sortBy, ['id', 'event_name', 'start_at', 'end_at', 'status', 'created_at']) === false) {
+        if (
+            in_array($sortBy, [
+            'id', 'event_name', 'jenis_registrasi', 'start_at', 'end_at', 'status', 'created_at',
+            ]) === false
+        ) {
             $sortBy = 'event_name';
         }
 
@@ -80,9 +84,9 @@ class RdtEventController extends Controller
         $inputSchedules = $request->input('schedules');
 
         foreach ($inputSchedules as $inputSchedule) {
-            $schedule           = new RdtEventSchedule();
+            $schedule = new RdtEventSchedule();
             $schedule->start_at = $inputSchedule['start_at'];
-            $schedule->end_at   = $inputSchedule['end_at'];
+            $schedule->end_at = $inputSchedule['end_at'];
             $rdtEvent->schedules()->save($schedule);
         }
 
@@ -100,7 +104,7 @@ class RdtEventController extends Controller
     public function show(RdtEvent $rdtEvent)
     {
         $rdtEvent->loadCount([
-            'invitations', 'schedules', 'attendees', 'attendeesResult'
+            'invitations', 'schedules', 'attendees', 'attendeesResult',
         ]);
 
         $rdtEvent->load(['schedules', 'city']);
@@ -125,7 +129,7 @@ class RdtEventController extends Controller
                 RdtEventSchedule::find($schedule['id'])
                     ->update([
                         'start_at' => $schedule['start_at'],
-                        'end_at'   => $schedule['end_at']
+                        'end_at' => $schedule['end_at'],
                     ]);
             }
         }

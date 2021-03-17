@@ -73,7 +73,7 @@ class SyncToLabkesController extends Controller
                 'usia_tahun' => $this->countAge($row->birth_date, 'y'),
                 'usia_bulan' => $this->countAge($row->birth_date, 'm'),
                 'kunjungan' => 1,
-                'jenis_registrasi' => 'mandiri',
+                'jenis_registrasi' => $rdtEvent->jenis_registrasi->getValue(),
                 'fasyankes_id' => $row->fasyankes_id,
                 'tanggal_kunjungan' => $attendedAt->toDateTimeString(),
                 'rs_kunjungan' => $row->attend_location,

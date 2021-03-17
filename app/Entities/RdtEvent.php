@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use App\Enums\JenisRegistrasi;
 use App\Enums\LabResultType;
 use App\Enums\RdtEventStatus;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,7 @@ class RdtEvent extends Model
 
     protected $enums = [
         'status' => RdtEventStatus::class,
+        'jenis_registrasi' => JenisRegistrasi::class,
     ];
 
     protected $fillable = [
@@ -37,6 +39,7 @@ class RdtEvent extends Model
         'start_at',
         'end_at',
         'status',
+        'jenis_registrasi',
         'created_by',
         'updated_by'
     ];
