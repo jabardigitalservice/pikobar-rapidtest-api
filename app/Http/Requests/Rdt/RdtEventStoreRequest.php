@@ -35,7 +35,7 @@ class RdtEventStoreRequest extends FormRequest
             'end_at'         => ['required', 'date'],
             'schedules'      => ['required', 'array'],
             'status'         => ['required', new EnumValueRule(RdtEventStatus::class)],
-            'jenis_registrasi' => ['nullable', new EnumValueRule(JenisRegistrasi::class)],
+            'jenis_registrasi' => ['required', new EnumValueRule(JenisRegistrasi::class)],
         ];
     }
 }
