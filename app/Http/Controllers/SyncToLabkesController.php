@@ -84,12 +84,12 @@ class SyncToLabkesController extends Controller
             $request = Http::post($labkesUrl, ['data' => $payloads, 'api_key' => $labkesApiKey]);
             if ($request->getStatusCode() === Response::HTTP_OK) {
                 $result = json_decode($request->getBody()->getContents());
-                $response['message'] = $this->addFlagHasSendToLabkes($result);
+                $response['message'] = $this->addFlagSendToLabkes($result);
                 $response['result'] = ['success' => $result->result->berhasil, 'failed' => $result->result->gagal];
                 $statusCode = Response::HTTP_OK;
             } else {
                 $result = json_decode($request->getBody()->getContents());
-                $response['message'] = $this->addFlagFailedSendToLabkes($result);
+                $response['message'] = $this->addFlagSendToLabkes($result);
                 $response['result'] = ['failed' => $result->result->gagal];
                 $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
             }
@@ -102,18 +102,14 @@ class SyncToLabkesController extends Controller
         return response()->json($response, $statusCode);
     }
 
-    public function addFlagHasSendToLabkes($result)
+    public function addFlagSendToLabkes($result)
     {
         if (count($result->result->berhasil) > 0) {
             DB::table('rdt_invitations')
                 ->whereIn('lab_code_sample', array_values($result->result->berhasil))
                 ->update(['synchronization_at' => now(), 'status_on_simlab' => 'SENT']);
         }
-        return count($result->result->berhasil) . ' ' . __('response.sync_success');
-    }
 
-    public function addFlagFailedSendToLabkes($result)
-    {
         if (count($result->result->gagal) > 0) {
             $resultFailed = collect($result->result->gagal)->pluck('nomor_sampel')->toArray();
 
@@ -121,7 +117,17 @@ class SyncToLabkesController extends Controller
                 ->whereIn('lab_code_sample', array_values($resultFailed))
                 ->update(['status_on_simlab' => 'FAILED']);
         }
-        return count($result->result->gagal) . ' ' . __('response.sync_failed');
+
+        $countSuccess = count($result->result->berhasil);
+        $countFailed = count($result->result->gagal);
+        $payloadSuccess = $countSuccess . ' ' . __('response.sync_success');
+        $payloadFailed = $countFailed . ' ' . __('response.sync_failed');
+
+        if ($countSuccess > 0) {
+            return $payloadSuccess . ' & ' . $payloadFailed;
+        } else {
+            return $payloadFailed;
+        }
     }
 
     public function countAge($birthDate, $format)
