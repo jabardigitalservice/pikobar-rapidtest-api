@@ -123,11 +123,7 @@ class SyncToLabkesController extends Controller
         $payloadSuccess = $countSuccess . ' ' . __('response.sync_success');
         $payloadFailed = $countFailed . ' ' . __('response.sync_failed');
 
-        if ($countSuccess > 0) {
-            return $payloadSuccess . ' & ' . $payloadFailed;
-        } else {
-            return $payloadFailed;
-        }
+        return $countSuccess > 0 ? $payloadSuccess . ' & ' . $payloadFailed : $payloadFailed;
     }
 
     public function countAge($birthDate, $format)
