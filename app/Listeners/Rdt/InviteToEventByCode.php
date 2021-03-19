@@ -77,7 +77,7 @@ class InviteToEventByCode
             return;
         }
 
-        $invitation = RdtInvitation::firstOrNew(['registration_code' => $applicant->registration_code]);
+        $invitation = new RdtInvitation();
         $invitation->registration_code = $applicant->registration_code;
         $invitation->event()->associate($rdtEvent);
         $invitation->applicant()->associate($applicant);
