@@ -27,7 +27,7 @@ class CreateRdtEventTest extends TestCase
             'event_location'    => $rdtEvent->event_location,
             'city_code'         => '32.73',
             'status'            => $rdtEvent->status,
-            'jenis_registrasi'  => $rdtEvent->jenis_registrasi,
+            'registration_type'  => $rdtEvent->registration_type,
             'start_at'          => $startAt = new Carbon(),
             'end_at'            => $endAt = new Carbon(),
             'schedules'         => [

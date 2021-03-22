@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFieldJenisRegistrasiOnTableRdtEvents extends Migration
+class AddFieldRegistrationTypeOnTableRdtEvents extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddFieldJenisRegistrasiOnTableRdtEvents extends Migration
     public function up()
     {
         Schema::table('rdt_events', function (Blueprint $table) {
-            $table->string('jenis_registrasi')->nullable()->after('referral_code');
+            $table->string('registration_type')->nullable()->after('referral_code');
         });
     }
 
@@ -26,7 +26,7 @@ class AddFieldJenisRegistrasiOnTableRdtEvents extends Migration
     public function down()
     {
         Schema::table('rdt_events', function (Blueprint $table) {
-            $table->dropColumn('jenis_registrasi');
+            $table->dropColumn('registration_type');
         });
     }
 }

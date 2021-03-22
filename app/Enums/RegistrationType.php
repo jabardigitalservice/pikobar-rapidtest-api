@@ -4,11 +4,11 @@ namespace App\Enums;
 
 use Spatie\Enum\Enum;
 
-class JenisRegistrasi extends Enum
+class RegistrationType extends Enum
 {
-    public static function rujukan(): JenisRegistrasi
+    public static function rujukan(): RegistrationType
     {
-        return new class () extends JenisRegistrasi
+        return new class () extends RegistrationType
         {
             public function getValue(): string
             {
@@ -17,9 +17,9 @@ class JenisRegistrasi extends Enum
         };
     }
 
-    public static function mandiri(): JenisRegistrasi
+    public static function mandiri(): RegistrationType
     {
-        return new class () extends JenisRegistrasi
+        return new class () extends RegistrationType
         {
             public function getValue(): string
             {
