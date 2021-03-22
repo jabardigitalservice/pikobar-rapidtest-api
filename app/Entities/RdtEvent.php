@@ -27,7 +27,6 @@ class RdtEvent extends Model
 
     protected $enums = [
         'status' => RdtEventStatus::class,
-        'registration_type' => RegistrationType::class,
     ];
 
     protected $fillable = [
