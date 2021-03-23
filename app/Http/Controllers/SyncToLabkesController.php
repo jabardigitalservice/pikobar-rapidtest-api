@@ -48,9 +48,17 @@ class SyncToLabkesController extends Controller
             $attendedAt = Carbon::createFromFormat('Y-m-d H:i:s', $row->attended_at);
             $attendedAt->setTimezone(config('app.timezone_frontend'));
 
+            // kategori untuk dikirim ke simlab menggunakan data instansi pekerjaan (jika tes mandiri)
+            $category = $row->workplace_name;
+            if ($rdtEvent->registration_type != null) {
+                // jika tes rujukan kategori diisi dengan judul kegiatan
+                $eventName = $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY');
+                $category = $rdtEvent->registration_type == 'mandiri' ? $category : $eventName;
+            }
+
             $payloads[] = [
                 'kewarganegaraan' => 'WNI',
-                'kategori' => $row->workplace_name,
+                'kategori' => $category,
                 'kriteria' => $personStatusValue[$row->person_status],
                 'nama_pasien' => $row->name,
                 'nik' => $row->nik,
