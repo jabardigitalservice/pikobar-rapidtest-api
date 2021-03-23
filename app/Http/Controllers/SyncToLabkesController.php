@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Entities\RdtEvent;
+use App\Enums\RegistrationType;
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -53,7 +54,7 @@ class SyncToLabkesController extends Controller
             if ($rdtEvent->registration_type != null) {
                 // jika tes rujukan kategori diisi dengan judul kegiatan
                 $eventName = $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY');
-                $category = $rdtEvent->registration_type == 'mandiri' ? $category : $eventName;
+                $category = $rdtEvent->registration_type === RegistrationType::mandiri()->getValue() ? $category : $eventName;
             }
 
             $payloads[] = [
