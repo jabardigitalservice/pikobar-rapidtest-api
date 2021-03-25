@@ -56,7 +56,7 @@ class SyncToLabkesController extends Controller
 
             // kategori untuk dikirim ke simlab menggunakan data instansi pekerjaan (jika tes mandiri)
             $category = $row->workplace_name;
-            if ($type != null) {
+            if ($type !== null) {
                 // jika tes rujukan kategori diisi dengan judul kegiatan
                 $eventName = $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY');
                 // check kondisi true or false
