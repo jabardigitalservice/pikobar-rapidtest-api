@@ -49,13 +49,18 @@ class SyncToLabkesController extends Controller
             $attendedAt = Carbon::createFromFormat('Y-m-d H:i:s', $row->attended_at);
             $attendedAt->setTimezone(config('app.timezone_frontend'));
 
+            // declare reusable variable
+            $type = $rdtEvent->registration_type;
+            $mandiri = RegistrationType::mandiri()->getValue();
+            $rujukan = RegistrationType::rujukan()->getValue();
+
             // kategori untuk dikirim ke simlab menggunakan data instansi pekerjaan (jika tes mandiri)
             $category = $row->workplace_name;
-            if ($rdtEvent->registration_type != null) {
+            if ($type != null) {
                 // jika tes rujukan kategori diisi dengan judul kegiatan
                 $eventName = $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY');
                 // check kondisi true or false
-                $checkEventType = $rdtEvent->registration_type === RegistrationType::mandiri()->getValue();
+                $checkEventType = $type === $mandiri;
                 $category =  $checkEventType ? $category : $eventName;
             }
 
@@ -84,7 +89,7 @@ class SyncToLabkesController extends Controller
                 'usia_tahun' => $this->countAge($row->birth_date, 'y'),
                 'usia_bulan' => $this->countAge($row->birth_date, 'm'),
                 'kunjungan' => 1,
-                'jenis_registrasi' => $rdtEvent->registration_type === null ? 'mandiri' : 'rujukan',
+                'jenis_registrasi' => $type === null || $type === $mandiri ? $mandiri : $rujukan,
                 'fasyankes_id' => $row->fasyankes_id,
                 'tanggal_kunjungan' => $attendedAt->toDateTimeString(),
                 'rs_kunjungan' => $row->attend_location,
