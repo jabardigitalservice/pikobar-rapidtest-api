@@ -54,19 +54,18 @@ class SyncToLabkesController extends Controller
             $mandiri = RegistrationType::mandiri()->getValue();
             $rujukan = RegistrationType::rujukan()->getValue();
 
-            // kategori untuk dikirim ke simlab menggunakan data instansi pekerjaan (jika tes mandiri)
-            $category = $row->workplace_name;
-            if ($type !== null) {
-                // jika tes rujukan kategori diisi dengan judul kegiatan
-                $eventName = $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY');
-                // check kondisi true or false
-                $checkEventType = $type === $mandiri;
-                $category =  $checkEventType ? $category : $eventName;
+            // handle data existing akan dianggap tes mandiri
+            if ($type === null) {
+                $type = $mandiri;
             }
+
+            // jika tes mandiri kategori diisi instansi pekerjaan jika rujukan diisi nama kegiatan
+            $eventName = $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY');
+            $workplace = $row->workplace_name;
 
             $payloads[] = [
                 'kewarganegaraan' => 'WNI',
-                'kategori' => $category,
+                'kategori' => $type === $mandiri ? $workplace : $eventName,
                 'kriteria' => $personStatusValue[$row->person_status],
                 'nama_pasien' => $row->name,
                 'nik' => $row->nik,
@@ -89,7 +88,7 @@ class SyncToLabkesController extends Controller
                 'usia_tahun' => $this->countAge($row->birth_date, 'y'),
                 'usia_bulan' => $this->countAge($row->birth_date, 'm'),
                 'kunjungan' => 1,
-                'jenis_registrasi' => $type === null || $type === $mandiri ? $mandiri : $rujukan,
+                'jenis_registrasi' => $type === $mandiri ? $mandiri : $rujukan,
                 'fasyankes_id' => $row->fasyankes_id,
                 'tanggal_kunjungan' => $attendedAt->toDateTimeString(),
                 'rs_kunjungan' => $row->attend_location,

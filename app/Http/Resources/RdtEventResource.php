@@ -37,7 +37,11 @@ class RdtEventResource extends JsonResource
         $mandiri = RegistrationType::mandiri()->getValue();
         $rujukan = RegistrationType::rujukan()->getValue();
 
-        $selectedType = $type === null || $type === $mandiri ? $mandiri : $rujukan;
+        if ($type === null) {
+            $type = $mandiri;
+        }
+
+        $selectedType = $type === $mandiri ? $mandiri : $rujukan;
 
         return $selectedType;
     }
