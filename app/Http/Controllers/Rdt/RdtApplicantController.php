@@ -54,12 +54,6 @@ class RdtApplicantController extends Controller
 
         $records = RdtApplicant::query();
 
-        $records->whereNotIn('id', function ($query) use ($eventId) {
-            $query->select('rdt_applicant_id')
-                ->from('rdt_invitations')
-                ->where('rdt_event_id', $eventId);
-        });
-
         if ($search) {
             $records->where(function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%')

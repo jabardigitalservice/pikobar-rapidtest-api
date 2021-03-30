@@ -4,6 +4,7 @@ namespace App\Entities;
 
 use App\Enums\LabResultType;
 use App\Enums\RdtEventStatus;
+use App\Enums\RegistrationType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Enum\Laravel\HasEnums;
@@ -37,6 +38,7 @@ class RdtEvent extends Model
         'start_at',
         'end_at',
         'status',
+        'registration_type',
         'created_by',
         'updated_by'
     ];

@@ -39,13 +39,10 @@ class RdtEventParticipantAddController extends Controller
             $applicant->pikobar_session_id = $rdtEvent->event_code;
             $applicant->save();
 
-            // Cek existing undangan/invitation.
-            // Jika sudah terdaftar di event yang sama, update kloter saja.
-            // Jika belum terdaftar, insert baru.
-            $invitation = RdtInvitation::firstOrNew([
-                'rdt_event_id' => $rdtEvent->id,
-                'rdt_applicant_id' => $applicantId['rdt_applicant_id']]);
-
+            // Update peserta bisa lebih dari satu dalam satu kegiatan
+            $invitation = new RdtInvitation();
+            $invitation->rdt_event_id = $rdtEvent->id;
+            $invitation->rdt_applicant_id = $applicantId['rdt_applicant_id'];
             $invitation->rdt_event_schedule_id = $applicantId['rdt_event_schedule_id'];
             $invitation->save();
         }

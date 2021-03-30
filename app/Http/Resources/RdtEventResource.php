@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\RegistrationType;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class RdtEventResource extends JsonResource
@@ -17,6 +18,7 @@ class RdtEventResource extends JsonResource
         return [
             'event_name'     => $this->event_name,
             'event_location' => $this->event_location,
+            'registration_type' => $this->getRegistrationType(),
             'event_reg_url'  => sprintf('%s/#/?sessionId=%s', config('app.client_url'), $this->event_code),
             'host_type'      => $this->host_type,
             'host_name'      => $this->host_name,
@@ -27,6 +29,21 @@ class RdtEventResource extends JsonResource
             $this->merge($this->getStatisticCountAttributes()),
             $this->mergeWhen($request->user(), $this->getProtectedAttributes()),
         ];
+    }
+
+    protected function getRegistrationType()
+    {
+        $type = $this->registration_type;
+        $mandiri = RegistrationType::mandiri()->getValue();
+        $rujukan = RegistrationType::rujukan()->getValue();
+
+        if ($type === null) {
+            $type = $mandiri;
+        }
+
+        $selectedType = $type === $mandiri ? $mandiri : $rujukan;
+
+        return $selectedType;
     }
 
     protected function getStatisticCountAttributes()

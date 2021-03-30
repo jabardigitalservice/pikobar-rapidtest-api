@@ -6,8 +6,6 @@ use App\Entities\RdtEvent;
 use App\Entities\RdtInvitation;
 use App\Enums\RdtApplicantStatus;
 use App\Events\Rdt\ApplicantRegistered;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
 class InviteToEventByCode
@@ -81,14 +79,12 @@ class InviteToEventByCode
 
         $invitation = new RdtInvitation();
         $invitation->registration_code = $applicant->registration_code;
-
         $invitation->event()->associate($rdtEvent);
         $invitation->applicant()->associate($applicant);
         if ($applicant->pikobar_session_id != null) {
             $firstEventSchedule = $rdtEvent->schedules()->first();
             $invitation->rdt_event_schedule_id = $firstEventSchedule->id;
         }
-        
         $invitation->save();
 
         $applicant->status = RdtApplicantStatus::APPROVED();

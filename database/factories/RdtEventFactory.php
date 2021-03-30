@@ -20,5 +20,6 @@ $factory->define(RdtEvent::class, function (Faker $faker) {
         'start_at'       => $start->addDays(1),
         'end_at'         => $start->copy()->addHours(6),
         'status'         => RdtEventStatus::PUBLISHED(),
+        'registration_type' => 'mandiri',
     ];
 });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Entities\RdtEvent;
+use App\Enums\RegistrationType;
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -48,9 +49,23 @@ class SyncToLabkesController extends Controller
             $attendedAt = Carbon::createFromFormat('Y-m-d H:i:s', $row->attended_at);
             $attendedAt->setTimezone(config('app.timezone_frontend'));
 
+            // declare reusable variable
+            $type = $rdtEvent->registration_type;
+            $mandiri = RegistrationType::mandiri()->getValue();
+            $rujukan = RegistrationType::rujukan()->getValue();
+
+            // handle data existing akan dianggap tes mandiri
+            if ($type === null) {
+                $type = $mandiri;
+            }
+
+            // jika tes mandiri kategori diisi instansi pekerjaan jika rujukan diisi nama kegiatan
+            $eventName = $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY');
+            $workplace = $row->workplace_name;
+
             $payloads[] = [
                 'kewarganegaraan' => 'WNI',
-                'kategori' => $rdtEvent->event_name . ' ' . Carbon::parse($row->attended_at)->format('dmY'),
+                'kategori' => $type === $mandiri ? $workplace : $eventName,
                 'kriteria' => $personStatusValue[$row->person_status],
                 'nama_pasien' => $row->name,
                 'nik' => $row->nik,
@@ -73,7 +88,7 @@ class SyncToLabkesController extends Controller
                 'usia_tahun' => $this->countAge($row->birth_date, 'y'),
                 'usia_bulan' => $this->countAge($row->birth_date, 'm'),
                 'kunjungan' => 1,
-                'jenis_registrasi' => 'mandiri',
+                'jenis_registrasi' => $type === $mandiri ? $mandiri : $rujukan,
                 'fasyankes_id' => $row->fasyankes_id,
                 'tanggal_kunjungan' => $attendedAt->toDateTimeString(),
                 'rs_kunjungan' => $row->attend_location,
@@ -84,12 +99,12 @@ class SyncToLabkesController extends Controller
             $request = Http::post($labkesUrl, ['data' => $payloads, 'api_key' => $labkesApiKey]);
             if ($request->getStatusCode() === Response::HTTP_OK) {
                 $result = json_decode($request->getBody()->getContents());
-                $response['message'] = $this->addFlagHasSendToLabkes($result);
+                $response['message'] = $this->addFlagSendToLabkes($result);
                 $response['result'] = ['success' => $result->result->berhasil, 'failed' => $result->result->gagal];
                 $statusCode = Response::HTTP_OK;
             } else {
                 $result = json_decode($request->getBody()->getContents());
-                $response['message'] = $this->addFlagFailedSendToLabkes($result);
+                $response['message'] = $this->addFlagSendToLabkes($result);
                 $response['result'] = ['failed' => $result->result->gagal];
                 $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
             }
@@ -102,18 +117,14 @@ class SyncToLabkesController extends Controller
         return response()->json($response, $statusCode);
     }
 
-    public function addFlagHasSendToLabkes($result)
+    public function addFlagSendToLabkes($result)
     {
         if (count($result->result->berhasil) > 0) {
             DB::table('rdt_invitations')
                 ->whereIn('lab_code_sample', array_values($result->result->berhasil))
                 ->update(['synchronization_at' => now(), 'status_on_simlab' => 'SENT']);
         }
-        return count($result->result->berhasil) . ' ' . __('response.sync_success');
-    }
 
-    public function addFlagFailedSendToLabkes($result)
-    {
         if (count($result->result->gagal) > 0) {
             $resultFailed = collect($result->result->gagal)->pluck('nomor_sampel')->toArray();
 
@@ -121,7 +132,13 @@ class SyncToLabkesController extends Controller
                 ->whereIn('lab_code_sample', array_values($resultFailed))
                 ->update(['status_on_simlab' => 'FAILED']);
         }
-        return count($result->result->gagal) . ' ' . __('response.sync_failed');
+
+        $countSuccess = count($result->result->berhasil);
+        $countFailed = count($result->result->gagal);
+        $payloadSuccess = $countSuccess . ' ' . __('response.sync_success');
+        $payloadFailed = $countFailed . ' ' . __('response.sync_failed');
+
+        return $countSuccess > 0 ? $payloadSuccess . ' & ' . $payloadFailed : $payloadFailed;
     }
 
     public function countAge($birthDate, $format)
