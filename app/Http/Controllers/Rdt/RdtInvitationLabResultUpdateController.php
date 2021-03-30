@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Rdt;
 
+use App\Entities\RdtInvitation;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtInvitationLabResultUpdateRequest as Request;
-use App\Entities\RdtInvitation;
 
 class RdtInvitationLabResultUpdateController extends Controller
 {
