@@ -10,7 +10,6 @@ class RdtInvitationLabResultUpdateController extends Controller
 {
     public function __invoke(RdtInvitation $rdtInvitation, Request $request)
     {
-        // implement model route binding
         $rdtInvitation->update($request->only('lab_result_type'));
         return response()->json(['message' => 'OK']);
     }

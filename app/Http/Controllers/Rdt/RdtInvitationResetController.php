@@ -9,7 +9,6 @@ class RdtInvitationResetController extends Controller
 {
     public function __invoke(RdtInvitation $rdtInvitation)
     {
-        // implement model route binding
         $rdtInvitation->update(['lab_code_sample' => 'null' ,'attended_at' => null,'attend_location' => null]);
         return response()->json(['message' => 'OK']);
     }
