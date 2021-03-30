@@ -7,10 +7,10 @@ use App\Entities\RdtInvitation;
 
 class RdtInvitationResetController extends Controller
 {
-    public function __invoke($id)
+    public function __invoke(RdtInvitation $rdtInvitation)
     {
-        $rdtInvitation  = RdtInvitation::findOrFail($id);
-        $rdtInvitation->update(['lab_code_sample' => null ,'attended_at' => null,'attend_location' => null]);
+        // implement model route binding
+        $rdtInvitation->update(['lab_code_sample' => 'null' ,'attended_at' => null,'attend_location' => null]);
         return response()->json(['message' => 'OK']);
     }
 }

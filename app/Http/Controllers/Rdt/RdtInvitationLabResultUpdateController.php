@@ -8,9 +8,9 @@ use App\Entities\RdtInvitation;
 
 class RdtInvitationLabResultUpdateController extends Controller
 {
-    public function __invoke($id, Request $request)
+    public function __invoke(RdtInvitation $rdtInvitation, Request $request)
     {
-        $rdtInvitation  = RdtInvitation::findOrFail($id);
+        // implement model route binding
         $rdtInvitation->update($request->only('lab_result_type'));
         return response()->json(['message' => 'OK']);
     }
