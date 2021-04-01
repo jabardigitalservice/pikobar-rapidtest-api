@@ -8,12 +8,10 @@ use App\Http\Resources\RdtInvitationResource;
 
 class RdtEventParticipantDetailController extends Controller
 {
-    public function __invoke($id)
+    public function __invoke(RdtInvitation $rdtInvitation)
     {
-        $invitation = RdtInvitation::findOrFail($id);
-
         // add lazy eager loading applicant to provide city, district and village
-        return new RdtInvitationResource($invitation->load([
+        return new RdtInvitationResource($rdtInvitation->load([
             'applicant', 'applicant.city', 'applicant.district', 'applicant.village',
         ]));
     }
