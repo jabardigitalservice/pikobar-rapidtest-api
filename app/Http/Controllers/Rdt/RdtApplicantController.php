@@ -33,7 +33,11 @@ class RdtApplicantController extends Controller
         $personStatus = $request->input('person_status');
         $perPage = $this->getPaginationSize($perPage);
 
-        if (in_array($sortBy, ['id', 'name', 'gender', 'age', 'person_status', 'created_at', 'updated_at', 'registration_at']) === false) {
+        if (
+            in_array($sortBy, [
+                'id', 'name', 'gender', 'age', 'person_status', 'created_at', 'updated_at', 'registration_at',
+            ]) === false
+        ) {
             $sortBy = 'name';
         }
 
@@ -65,7 +69,9 @@ class RdtApplicantController extends Controller
         }
 
         if ($registrationDateStart) {
-            $records->whereBetween(DB::raw('CAST(registration_at AS DATE)'), [$registrationDateStart, $registrationDateEnd]);
+            $records->whereBetween(DB::raw('CAST(registration_at AS DATE)'), [
+                $registrationDateStart, $registrationDateEnd,
+            ]);
         }
 
         if ($personStatus) {
