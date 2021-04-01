@@ -71,6 +71,7 @@ class RdtApplicantResource extends JsonResource
             'pikobar_session_id'   => $this->pikobar_session_id,
             'created_at'           => $this->created_at,
             'updated_at'           => $this->updated_at,
+            'registration_at'      => $this->registration_at,
             'city_visited'         => $this->city_visited,
             'congenital_disease'   => $this->congenital_disease
 

@@ -27,6 +27,7 @@ class RdtRegisterController extends Controller
     {
         Log::info('APPLICANT_REGISTER_REQUEST', $request->all());
         $payloads           = $request->all();
+        $payloads['registration_at'] = Carbon::now();
         $payloads['status'] = RdtApplicantStatus::NEW();
         $applicant          = RdtApplicant::updateOrCreate(['nik' => $request->nik], $payloads);
 
@@ -48,6 +49,7 @@ class RdtRegisterController extends Controller
             'name'                    => $applicant->name,
             'status'                  => $applicant->status,
             'registration_code'       => $applicant->registration_code,
+            'registration_at'         => $applicant->registration_at,
             'event_schedule_start_at' => optional($applicantEventSchedule)->start_at,
             'event_schedule_end_at'   => optional($applicantEventSchedule)->end_at,
             'event_start_at'          => optional($event)->start_at,
