@@ -55,7 +55,7 @@
         </tr>
         <tr>
           <th width="250px" align="right">Tanggal Pendaftaran</th>
-          <td>{{ $applicant->created_at->setTimezone('Asia/Jakarta') }}</td>
+          <td>{{ $applicant->registration_at->setTimezone('Asia/Jakarta') }}</td>
         </tr>
         <tr>
           <th width="250px" align="right">Nama Peserta</th>
