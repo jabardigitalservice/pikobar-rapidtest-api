@@ -29,5 +29,6 @@ $factory->define(RdtApplicant::class, function (Faker $faker) {
         'occupation_name'      => $faker->jobTitle,
         'workplace_name'       => $faker->company,
         'status'               => RdtApplicantStatus::NEW(),
+        'registration_at'      => $faker->dateTime(),
     ];
 });
