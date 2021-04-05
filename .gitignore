@@ -16,3 +16,4 @@ yarn-error.log
 /.idea
 *.code-workspace
 composer.phar
+/report
