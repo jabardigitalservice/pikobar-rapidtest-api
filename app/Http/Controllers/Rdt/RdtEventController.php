@@ -33,7 +33,7 @@ class RdtEventController extends Controller
 
         if (
             in_array($sortBy, [
-            'id', 'event_name', 'registration_type', 'start_at', 'end_at', 'status', 'created_at',
+                'id', 'event_name', 'registration_type', 'start_at', 'end_at', 'status', 'created_at',
             ]) === false
         ) {
             $sortBy = 'event_name';
@@ -104,7 +104,7 @@ class RdtEventController extends Controller
     public function show(RdtEvent $rdtEvent)
     {
         $rdtEvent->loadCount([
-            'invitations', 'schedules', 'attendees', 'attendeesResult',
+            'invitations', 'schedules', 'attendees', 'attendeesResult', 'applicantsNotifiedResult',
         ]);
 
         $rdtEvent->load(['schedules', 'city']);

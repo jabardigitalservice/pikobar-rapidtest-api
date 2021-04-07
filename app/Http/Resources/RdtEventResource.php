@@ -61,6 +61,9 @@ class RdtEventResource extends JsonResource
             $this->mergeWhen($this->attendees_result_count !== null, [
                 'attendees_result_count' => $this->attendees_result_count,
             ]),
+            $this->mergeWhen($this->applicants_notified_result_count !== null, [
+                'applicants_notified_result_count' => $this->applicants_notified_result_count,
+            ]),
         ];
     }
 

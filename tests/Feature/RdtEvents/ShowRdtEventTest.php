@@ -9,7 +9,7 @@ use Tests\TestCase;
 class ShowRdtEventTest extends TestCase
 {
     /** @test */
-    function can_show_event()
+    public function can_show_event()
     {
         $rdtEvent = factory(RdtEvent::class)->create();
 
@@ -19,6 +19,6 @@ class ShowRdtEventTest extends TestCase
         $this->actingAs($user)
             ->getJson("/api/rdt/events/{$rdtEvent->id}")
             ->assertSuccessful()
-            ->assertJsonStructure(['data' => ['event_name', 'host_name']]);
+            ->assertJsonStructure(['data' => ['event_name', 'host_name', 'applicants_notified_result_count']]);
     }
 }
