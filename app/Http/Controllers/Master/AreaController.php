@@ -48,7 +48,7 @@ class AreaController extends ApiController
      * @param Area $area
      * @return AreaResource|\Illuminate\Http\Response
      */
-    public function show(Request $request, Area $area)
+    public function show(Area $area)
     {
         return new AreaResource($area);
     }
