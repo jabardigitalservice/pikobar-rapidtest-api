@@ -41,7 +41,7 @@ class RdtEventInvitation extends Notification
         $hostName = $this->rdtEvent->host_name;
         $name     = $notifiable->name;
 
-        $message  = 'Yth. ' . $name . ' Sampurasun, Anda diundang untuk melakukan Tes Masif COVID-19 oleh ';
+        $message  = 'Yth. ' . $name . ' Sampurasun, Anda diundang untuk melakukan Tes COVID-19 oleh ';
         $message .= $hostName . ' Silakan buka tautan https://s.id/tesmasif2 dan masukkan Nomor Pendaftaran berikut: ';
         $message .= $notifiable->registration_code . ' untuk melihat undangan. Hatur nuhun';
 
@@ -50,7 +50,7 @@ class RdtEventInvitation extends Notification
 
     public function toSms($notifiable)
     {
-        $message  = 'Sampurasun. Anda diundang Tes Masif COVID-19 ';
+        $message  = 'Sampurasun. Anda diundang Tes COVID-19 ';
         $message .= $this->rdtEvent->host_name . '. Buka tautan s.id/tesmasif1 dan input nomor: ';
         $message .= $notifiable->registration_code . ' untuk melihat undangan.';
 
