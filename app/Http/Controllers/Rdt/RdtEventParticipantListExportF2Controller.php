@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Rdt;
 
 use App\Entities\RdtEvent;
 use App\Http\Controllers\Controller;
+use Box\Spout\Common\Entity\Style\CellAlignment;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -35,16 +35,21 @@ class RdtEventParticipantListExportF2Controller extends Controller
             'Tanggal Lahir / Usia',
             'Jenis Spesimen',
             'Institusi Pengirim Spesimen',
-            'Nomor Spesimen ( Label Barcode )',
+            'Nomor Spesimen (Label Barcode)',
         ];
 
-        $rowFromValues = WriterEntityFactory::createRowFromArray($headers);
+        /** Create a style with the StyleBuilder */
+        $style = (new StyleBuilder())
+            ->setCellAlignment(CellAlignment::CENTER)
+            ->build();
+
+        $rowFromValues = WriterEntityFactory::createRowFromArray($headers, $style);
         $excelWriter->addRow($rowFromValues);
 
         DB::statement(DB::raw('set @number=0'));
 
         // containing column with value
-        $data = \DB::table('rdt_invitations')
+        $data = DB::table('rdt_invitations')
             ->select(
                 DB::raw('@number:=@number+1 as number'),
                 'rdt_applicants.name',
