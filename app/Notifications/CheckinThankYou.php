@@ -53,7 +53,7 @@ class CheckinThankYou extends Notification
         return "Yth. {$notifiable->name}. Terima kasih menghadiri Tes COVID19 PIKOBAR.
             Nomor Pendaftaran: {$notifiable->registration_code}.
             Datang: {$this->rdtInvitation->attended_at->setTimezone('Asia/Jakarta')}.
-            Info: s.id/tesmasif";
+            Info: s.id/TesCOVID19";
     }
 
     public function toWhatsapp($notifiable)
