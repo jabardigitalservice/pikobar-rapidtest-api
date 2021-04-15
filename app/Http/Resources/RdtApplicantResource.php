@@ -71,6 +71,7 @@ class RdtApplicantResource extends JsonResource
             'pikobar_session_id'   => $this->pikobar_session_id,
             'created_at'           => $this->created_at,
             'updated_at'           => $this->updated_at,
+            'registration_at'      => $this->getRegistrationAt(),
             'city_visited'         => $this->city_visited,
             'congenital_disease'   => $this->congenital_disease
 
@@ -85,5 +86,10 @@ class RdtApplicantResource extends JsonResource
         );
 
         return UrlSigner::sign($url);
+    }
+
+    protected function getRegistrationAt()
+    {
+        return $this->registration_at === null ? $this->updated_at : $this->registration_at;
     }
 }

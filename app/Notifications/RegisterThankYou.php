@@ -38,7 +38,7 @@ class RegisterThankYou extends Notification
         return <<<EOT
 *Yth. {$notifiable->name}*
 
-Terima kasih telah melakukan pendaftaran untuk mengikuti Tes Masif COVID-19 PIKOBAR Provinsi Jawa Barat.
+Terima kasih telah melakukan pendaftaran untuk mengikuti Tes COVID-19 PIKOBAR Provinsi Jawa Barat.
 
 Nomor Pendaftaran Anda adalah: *{$notifiable->registration_code}*
 

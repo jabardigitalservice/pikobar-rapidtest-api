@@ -23,12 +23,13 @@ class ShowRdtApplicantTest extends TestCase
             ->getJson("/api/rdt/applicants/{$rdtApplicant->id}")
             ->assertSuccessful()
             ->assertJsonStructure([
-                'data' => ['name', 'nik', 'address']
+                'data' => ['name', 'nik', 'address', 'registration_at']
             ])
             ->assertJsonFragment([
                 'name'    => $rdtApplicant->name,
                 'nik'     => $rdtApplicant->nik,
                 'address' => $rdtApplicant->address,
+                'registration_at' => $rdtApplicant->registration_at,
             ]);
     }
 

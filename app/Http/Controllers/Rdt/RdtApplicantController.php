@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtApplicantStoreRequest;
 use App\Http\Requests\Rdt\RdtApplicantUpdateRequest;
 use App\Http\Resources\RdtApplicantResource;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 
@@ -30,11 +31,13 @@ class RdtApplicantController extends Controller
         $registrationDateStart = $request->input('registration_date_start');
         $registrationDateEnd = $request->input('registration_date_end');
         $personStatus = $request->input('person_status');
-        $eventId = $request->input('event_id');
-
         $perPage = $this->getPaginationSize($perPage);
 
-        if (in_array($sortBy, ['id', 'name', 'gender', 'age', 'person_status', 'created_at', 'updated_at']) === false) {
+        if (
+            in_array($sortBy, [
+                'id', 'name', 'gender', 'age', 'person_status', 'created_at', 'updated_at', 'registration_at',
+            ]) === false
+        ) {
             $sortBy = 'name';
         }
 
@@ -66,7 +69,9 @@ class RdtApplicantController extends Controller
         }
 
         if ($registrationDateStart) {
-            $records->whereBetween(DB::raw('CAST(updated_at AS DATE)'), [$registrationDateStart, $registrationDateEnd]);
+            $records->whereBetween(DB::raw('CAST(registration_at AS DATE)'), [
+                $registrationDateStart, $registrationDateEnd,
+            ]);
         }
 
         if ($personStatus) {
@@ -107,10 +112,10 @@ class RdtApplicantController extends Controller
      */
     public function store(RdtApplicantStoreRequest $request)
     {
-        $rdtApplicant = new RdtApplicant();
-        $rdtApplicant->status = $request->input('status');
-        $rdtApplicant->fill($request->all());
-        $rdtApplicant->save();
+        $rdtApplicant = RdtApplicant::create($request->all() + [
+            'status' => $request->input('status'),
+            'registration_at' => Carbon::now(),
+        ]);
 
         return new RdtApplicantResource($rdtApplicant);
     }
@@ -138,8 +143,7 @@ class RdtApplicantController extends Controller
      */
     public function update(RdtApplicantUpdateRequest $request, RdtApplicant $rdtApplicant)
     {
-        $rdtApplicant->fill($request->all());
-        $rdtApplicant->save();
+        $rdtApplicant->update($request->all());
 
         return new RdtApplicantResource($rdtApplicant);
     }

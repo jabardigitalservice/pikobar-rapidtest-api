@@ -21,7 +21,7 @@ class RdtEventSeeder extends Seeder
         factory(RdtEvent::class, 50)->make()->each(function (RdtEvent $event) use ($start) {
             $randomCity = Area::where('parent_code_kemendagri', '32')->inRandomOrder()->first();
 
-            $event->event_name = 'Tes Masif '.$randomCity->name;
+            $event->event_name = 'Pendaftaran Tes '.$randomCity->name;
             $event->host_name  = 'Dinas Kesehatan '.$randomCity->name;
             $event->start_at   = $start->addDays(1);
             $event->end_at     = $start->copy()->addHours(4);

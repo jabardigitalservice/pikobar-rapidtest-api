@@ -22,9 +22,10 @@ class RdtCheckEventController extends Controller
         $rdtEvent = RdtEvent::where('event_code', $request->input('event_code'))->firstOrFail();
 
         return response()->json([
-           'event_name' => $rdtEvent->event_name,
-           'start_at' => $rdtEvent->start_at,
-           'end_at' => $rdtEvent->end_at,
+            'event_name' => $rdtEvent->event_name,
+            'start_at' => $rdtEvent->start_at,
+            'end_at' => $rdtEvent->end_at,
+            'status' => $rdtEvent->status,
         ]);
     }
 }

@@ -42,7 +42,7 @@ class RdtApplicant extends Model
         'is_pns',
         'symptoms', 'symptoms_notes', 'symptoms_interaction', 'symptoms_activity', 'person_status', 'status',
         'latitude', 'longitude', 'pikobar_session_id', 'pikobar_user_id', 'city_visited', 'congenital_disease',
-        'have_interacted', 'birth_place',
+        'have_interacted', 'birth_place', 'registration_at',
     ];
 
     /**
@@ -55,6 +55,7 @@ class RdtApplicant extends Model
         'approved_at',
         'invited_at',
         'attended_at',
+        'registration_at',
     ];
 
     /**

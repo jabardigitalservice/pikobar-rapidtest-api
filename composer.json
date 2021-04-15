@@ -73,6 +73,9 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi",
             "@php artisan jwt:secret --force"
+        ],
+        "test": [
+          "XDEBUG_MODE=coverage vendor/bin/phpunit"
         ]
     }
 }

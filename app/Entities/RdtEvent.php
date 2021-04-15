@@ -2,9 +2,7 @@
 
 namespace App\Entities;
 
-use App\Enums\LabResultType;
 use App\Enums\RdtEventStatus;
-use App\Enums\RegistrationType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Enum\Laravel\HasEnums;
@@ -40,7 +38,7 @@ class RdtEvent extends Model
         'status',
         'registration_type',
         'created_by',
-        'updated_by'
+        'updated_by',
     ];
 
     /**
@@ -76,5 +74,10 @@ class RdtEvent extends Model
     public function attendeesResult()
     {
         return $this->hasMany(RdtInvitation::class, 'rdt_event_id')->whereNotNull('lab_result_type');
+    }
+
+    public function applicantsNotifiedResult()
+    {
+        return $this->hasMany(RdtInvitation::class, 'rdt_event_id')->whereNotNull('notified_result_at');
     }
 }
