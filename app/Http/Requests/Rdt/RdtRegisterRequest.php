@@ -42,7 +42,6 @@ class RdtRegisterRequest extends FormRequest
             'gender'               => ['required', new EnumValueRule(Gender::class)],
             'person_status'        => ['required', new EnumValueRule(PersonCaseStatusEnum::class)],
             'birth_date'           => ['required', 'date'],
-            'occupation_type'      => ['required', 'integer'],
             'workplace_name'       => 'required',
             'symptoms'             => 'required',
             'symptoms_notes'       => 'nullable',
