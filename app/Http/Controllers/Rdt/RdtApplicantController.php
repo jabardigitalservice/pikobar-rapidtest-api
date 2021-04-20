@@ -115,7 +115,7 @@ class RdtApplicantController extends Controller
         $rdtApplicant = RdtApplicant::create($request->all() + [
             'status' => $request->input('status'),
             'registration_at' => Carbon::now(),
-            'province_code' => '32'
+            'province_code' => '32',
         ]);
 
         return new RdtApplicantResource($rdtApplicant);
