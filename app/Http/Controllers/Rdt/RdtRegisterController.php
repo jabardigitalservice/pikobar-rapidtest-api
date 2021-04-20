@@ -27,6 +27,7 @@ class RdtRegisterController extends Controller
     {
         Log::info('APPLICANT_REGISTER_REQUEST', $request->all());
         $payloads           = $request->all();
+        $payloads['province_code'] = '32';
         $payloads['registration_at'] = Carbon::now();
         $payloads['status'] = RdtApplicantStatus::NEW();
         $applicant          = RdtApplicant::updateOrCreate(['nik' => $request->nik], $payloads);
