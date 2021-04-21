@@ -35,7 +35,7 @@ class TestResult extends Notification
     public function toSms($notifiable)
     {
         $message  = 'Sampurasun, hasil Tes COVID Anda sudah keluar. ';
-        $message .= 'Silahkan buka tautan s.id/tesmasif3 dan input Nomor Pendaftaran ';
+        $message .= 'Silahkan buka tautan s.id/TesCOVID19 dan input Nomor Pendaftaran ';
         $message .= $notifiable->registration_code . ' untuk melihat hasil tes.';
 
         return $message;
@@ -45,7 +45,7 @@ class TestResult extends Notification
     {
         $message  = '*Yth. ' . $notifiable->name . '* ';
         $message .= 'Sampurasun, hasil Tes COVID-19 Anda sudah keluar. ';
-        $message .= 'Untuk mengetahui hasilnya, silahkan buka tautan https://s.id/tesmasif4 dan masukkan ';
+        $message .= 'Untuk mengetahui hasilnya, silahkan buka tautan https://s.id/TesCOVID19 dan masukkan ';
         $message .= "Nomor Pendaftaran berikut: *{$notifiable->registration_code}* untuk mendapatkan hasil tes. ";
         $message .= 'Hatur nuhun.';
 

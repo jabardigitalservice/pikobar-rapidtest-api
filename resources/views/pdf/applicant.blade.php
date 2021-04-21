@@ -25,7 +25,7 @@
   <thead>
   <tr>
     <th style="padding: 30px">
-      <h1 style="font-size: 14pt; margin: 0;">Bukti Pendaftaran Tes Masif COVID-19</h1>
+      <h1 style="font-size: 14pt; margin: 0;">Bukti Pendaftaran Tes COVID-19</h1>
       <h2 style="font-size: 12pt; margin: 0; font-weight: normal">Pusat Informasi dan Koordinasi Jawa Barat (PIKOBAR)</h2>
     </th>
   </tr>
@@ -75,7 +75,7 @@
       @if ($applicant->status->isEqual(\App\Enums\RdtApplicantStatus::NEW()))
       <div style="background-color: #ffd4d4; padding: 10px 20px; margin-top: 20px; font-size: 11pt">
         <h3>Menunggu Verifikasi</h3>
-        <p>Hanya yang sudah diverifikasi oleh Dinas Kesehatan Provinsi atau Dinas Kesehatan Kabupaten/Kota akan mendapatkan undangan untuk mengikuti tes masif COVID-19. Undangan akan dikirimkan melalui SMS, Whatsapp, dan Email yang digunakan untuk mendaftar.</p>
+        <p>Hanya yang sudah diverifikasi oleh Dinas Kesehatan Provinsi atau Dinas Kesehatan Kabupaten/Kota akan mendapatkan undangan untuk mengikuti tes COVID-19. Undangan akan dikirimkan melalui SMS, Whatsapp, dan Email yang digunakan untuk mendaftar.</p>
       </div>
       @endif
 
@@ -89,7 +89,7 @@
         <li style="margin-top: 14px"><strong>Jangan membagikan nomor pendaftaran ini kepada orang lain.</strong><br/>
           Pastikan identitas Anda tidak digunakan orang lain.</li>
 
-        <li style="margin-top: 14px"><strong>Tes Masif COVID-19 ini tidak dipungut biaya.</strong></li>
+        <li style="margin-top: 14px"><strong>Tes COVID-19 ini tidak dipungut biaya.</strong></li>
 
         <li style="margin-top: 14px"><strong>Unduh aplikasi PIKOBAR (Android/iOS).</strong><br/>
           Untuk mengakses informasi perkembangan terkini penanganan COVID-19 di Jawa Barat, unduh di <a href="https://bit.ly/PIKOBAR-V1">https://bit.ly/PIKOBAR-V1</a></li>
