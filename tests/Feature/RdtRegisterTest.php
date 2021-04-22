@@ -22,7 +22,6 @@ class RdtRegisterTest extends TestCase
             'phone_number'         => '62857123456',
             'gender'               => 'M',
             'birth_date'           => '1988-11-15',
-            'occupation_type'      => 1,
             'workplace_name'       => 'Tempat Kerja',
             'symptoms'             => [1, 2, 3],
             'symptoms_notes'       => 'Notes',
@@ -53,7 +52,7 @@ class RdtRegisterTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'g-recaptcha-response', 'nik', 'name', 'address', 'city_code', 'district_code', 'village_code', 'phone_number',
-                'gender', 'birth_date', 'occupation_type', 'symptoms'
+                'gender', 'birth_date', 'symptoms'
             ]);
     }
 }
