@@ -18,7 +18,7 @@ class RdtEventParticipantListExportF2Test extends TestCase
         $user = new User();
         $rdtEvent = factory(RdtEvent::class)->create();
 
-        $response = $this->actingAs($user)->json('GET', '/api/rdt/events/' . $rdtEvent->id . '/participants-export-f2');
+        $response = $this->actingAs($user)->getJson("/api/rdt/events/{$rdtEvent->id}/participants-export-f2");
 
         $response->assertStatus(Response::HTTP_OK)
             ->assertSuccessful();
