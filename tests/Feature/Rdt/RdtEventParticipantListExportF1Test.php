@@ -11,14 +11,14 @@ use Tests\TestCase;
 class RdtEventParticipantListExportF1Test extends TestCase
 {
     /** @test */
-    public function can_export_f2_applicant_event()
+    public function can_export_f1_applicant_event()
     {
         Excel::fake();
 
         $user = new User();
         $rdtEvent = factory(RdtEvent::class)->create();
 
-        $response = $this->actingAs($user)->get("/api/rdt/events/{$rdtEvent->id}/participants-export-f1");
+        $response = $this->actingAs($user)->json('GET', '/api/rdt/events/' . $rdtEvent->id . '/participants-export-f1');
 
         $response->assertStatus(Response::HTTP_OK)
             ->assertSuccessful();
