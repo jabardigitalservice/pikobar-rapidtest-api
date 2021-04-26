@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
 
-class RdtEventParticipantListExportF2Test extends TestCase
+class RdtEventParticipantListExportF1Test extends TestCase
 {
     /** @test */
     public function can_export_f2_applicant_event()
@@ -18,7 +18,7 @@ class RdtEventParticipantListExportF2Test extends TestCase
         $user = new User();
         $rdtEvent = factory(RdtEvent::class)->create();
 
-        $response = $this->actingAs($user)->get("/api/rdt/events/{$rdtEvent->id}/participants-export-f2");
+        $response = $this->actingAs($user)->get("/api/rdt/events/{$rdtEvent->id}/participants-export-f1");
 
         $response->assertStatus(Response::HTTP_OK)
             ->assertSuccessful();
