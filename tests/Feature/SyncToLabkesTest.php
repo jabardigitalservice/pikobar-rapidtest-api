@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Entities\RdtEvent;
 use App\Entities\User;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -28,6 +29,6 @@ class SyncToLabkesTest extends TestCase
         $response = $this->actingAs($user)->post("/api/synctolabkes/{$rdtEvent->id}", $data);
 
         // 3. Assertion
-        $response->assertStatus(200);
+        $response->assertStatus(Response::HTTP_OK);
     }
 }
