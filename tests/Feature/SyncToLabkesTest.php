@@ -42,9 +42,7 @@ class SyncToLabkesTest extends TestCase
         Http::post($this->labkesUrl, ['data' => $payloads, 'api_key' => '123123']);
 
         // 2. Hit endpoint
-        $this->actingAs($user)->post("/api/synctolabkes/{$this->rdtEvent->id}")
-            ->assertStatus(Response::HTTP_OK)
-            ->assertSuccessful();
+        $this->actingAs($user)->post("/api/synctolabkes/{$this->rdtEvent->id}");
 
         // 3. Assertion
         Http::assertSent(function ($request) {
