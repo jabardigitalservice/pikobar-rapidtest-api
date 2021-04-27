@@ -15,8 +15,7 @@ class SyncToLabkesTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->labkesUrl = config('app.labkes_url') . 'api/v1/tes-masif/bulk';
-        $this->labkesApiKey = config('app.labkes_api_key');
+        $this->labkesUrl = 'https://lab-pikobar-be.rover.digitalservice.id/*';
         $this->rdtEvent = factory(RdtEvent::class)->create();
         $this->rdtApplicant = factory(RdtApplicant::class)->create();
     }
@@ -26,7 +25,7 @@ class SyncToLabkesTest extends TestCase
     {
         // 1. Mocking Data
         Http::fake([
-            config('app.labkes_url') => Http::response([
+            'https://lab-pikobar-be.rover.digitalservice.id/' => Http::response([
                 'message' => 'Tes Masif Berhasil Ditambahkan',
             ], Response::HTTP_OK, [
                 'Content-Type' => 'application/json',
@@ -40,7 +39,7 @@ class SyncToLabkesTest extends TestCase
 
         $user = new User();
 
-        Http::post($this->labkesUrl, ['data' => $payloads, 'api_key' => $this->labkesApiKey]);
+        Http::post($this->labkesUrl, ['data' => $payloads, 'api_key' => '123123']);
 
         // 2. Hit endpoint
         $this->actingAs($user)->post("/api/synctolabkes/{$this->rdtEvent->id}")
@@ -58,7 +57,7 @@ class SyncToLabkesTest extends TestCase
     {
         // 1. Mocking Data
         Http::fake([
-            config('app.labkes_url') => Http::response([
+            'https://lab-pikobar-be.rover.digitalservice.id/' => Http::response([
                 'message' => 'Tes Masif Berhasil Ditambahkan',
             ], Response::HTTP_OK, [
                 'Content-Type' => 'application/json',
@@ -73,7 +72,7 @@ class SyncToLabkesTest extends TestCase
 
         $user = new User();
 
-        Http::post($this->labkesUrl, ['data' => $payloads, 'api_key' => $this->labkesApiKey]);
+        Http::post($this->labkesUrl, ['data' => $payloads, 'api_key' => '123123']);
 
         // 2. Hit endpoint
         $this->actingAs($user)->post("/api/synctolabkes/{$this->rdtEvent->id}");
