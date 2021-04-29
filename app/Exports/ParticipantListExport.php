@@ -50,11 +50,17 @@ class ParticipantListExport implements
     public function headings(): array
     {
         return [
-            'No',
-            'Nama Pasien',
-            'Tanggal Lahir',
-            'Institusi Pengirim Spesimen',
-            'Nomor Spesimen (Label Barcode)',
+            ["FORMULIR F2 : REGISTER SPESIMEN"],
+            ["Nama Kegiatan : {$this->event->event_name}"],
+            ["Tanggal :  {$this->event->end_at}"],
+            ["DINAS KESEHATAN : {$this->event->host_name}"],
+            [
+                'No',
+                'Nama Pasien',
+                'Tanggal Lahir',
+                'Institusi Pengirim Spesimen',
+                'Nomor Spesimen (Label Barcode)',
+            ],
         ];
     }
 
@@ -65,7 +71,7 @@ class ParticipantListExport implements
             $event->name,
             $event->birth_date,
             $event->workplace_name,
-            ' ',
+            '  ',
         ];
     }
 
@@ -73,10 +79,10 @@ class ParticipantListExport implements
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $cellRange = 'A1:W1'; // All headers
+                $cellRange = 'A1:W4'; // All headers
                 $event->sheet->getDelegate()->getStyle($cellRange)->getFont()->setSize(12)->setBold(true);
 
-                for ($key = 1; $key <= $this->index + 1; $key++) {
+                for ($key = 1; $key <= $this->index + 5; $key++) {
                     $event->sheet->getRowDimension($key)->setRowHeight(35);
                     $event->sheet->getDelegate()
                         ->getStyle("A{$key}:W{$key}")
