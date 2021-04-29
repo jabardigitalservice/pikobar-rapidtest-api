@@ -4,12 +4,13 @@ namespace Tests\Feature;
 
 use App\Entities\RdtEvent;
 use App\Entities\User;
+use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class RdtEventParticipantListTest extends TestCase
 {
     /** @test */
-    public function can_show_event_list_participants()
+    public function can_show_event_all_list_participants_without_perpage()
     {
         // 1. Mock the data
         $rdtEvent = factory(RdtEvent::class)->create();
@@ -22,8 +23,8 @@ class RdtEventParticipantListTest extends TestCase
 
         // 3. Assertion
         $response->assertSuccessful()
-            ->assertJsonStructure(['data', 'meta'])
-            ->assertJsonFragment((['per_page' => 15]));
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJsonStructure(['data']);
     }
 
     /** @test */
@@ -44,7 +45,8 @@ class RdtEventParticipantListTest extends TestCase
 
         // 3. Assertion
         $response->assertSuccessful()
-            ->assertJsonStructure(['data', 'meta']);
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJsonStructure(['data']);
     }
 
     /** @test */
@@ -66,6 +68,7 @@ class RdtEventParticipantListTest extends TestCase
         // 3. Assertion
         $response->assertSuccessful()
             ->assertJsonStructure(['data', 'meta'])
+            ->assertStatus(Response::HTTP_OK)
             ->assertJsonFragment((['per_page' => 50]));
     }
 }

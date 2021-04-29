@@ -20,7 +20,7 @@ install:
 
 script:
     - vendor/bin/phpcs
-    # - vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
+    - XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
 
 after_script:
     - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
