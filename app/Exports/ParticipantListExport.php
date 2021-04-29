@@ -37,9 +37,12 @@ class ParticipantListExport implements
                 'rdt_applicants.name',
                 'rdt_applicants.birth_date',
                 'rdt_applicants.workplace_name',
+                'rdt_invitations.lab_code_sample'
             )
             ->leftJoin('rdt_applicants', 'rdt_applicants.id', 'rdt_invitations.rdt_applicant_id')
             ->where('rdt_invitations.rdt_event_id', $this->event->id)
+            ->whereNotNull('rdt_invitations.lab_code_sample')
+            ->whereNotNull('rdt_invitations.attended_at')
             ->get();
 
         $this->index = count($data);
@@ -65,7 +68,7 @@ class ParticipantListExport implements
             $event->name,
             $event->birth_date,
             $event->workplace_name,
-            ' ',
+            $event->lab_code_sample,
         ];
     }
 
