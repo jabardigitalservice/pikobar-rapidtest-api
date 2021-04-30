@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -28,6 +29,9 @@ class ParticipantListExport implements
         $this->event = $event;
         $this->number = 1;
         $this->index;
+        $this->date = Carbon::parse($event->end_at)
+            ->locale('id')
+            ->translatedFormat('d F Y');
     }
 
     public function collection()
@@ -55,7 +59,7 @@ class ParticipantListExport implements
         return [
             ["FORMULIR F2 : REGISTER SPESIMEN"],
             ["Nama Kegiatan : {$this->event->event_name}"],
-            ["Tanggal :  {$this->event->end_at}"],
+            ["Tanggal :  {$this->date}"],
             ["DINAS KESEHATAN : {$this->event->host_name}"],
             [
                 'No',
@@ -82,8 +86,13 @@ class ParticipantListExport implements
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $cellRange = 'A1:W4'; // All headers
-                $event->sheet->getDelegate()->getStyle($cellRange)->getFont()->setSize(12)->setBold(true);
+                for ($cells = 1; $cells <= 4; $cells++) {
+                    $event->sheet->mergeCells("A{$cells}:E{$cells}");
+                    $event->sheet->getDelegate()
+                        ->getStyle("A{$cells}:E{$cells}")
+                        ->getAlignment()
+                        ->setVertical(Alignment::VERTICAL_CENTER);
+                }
 
                 for ($key = 1; $key <= $this->index + 5; $key++) {
                     $event->sheet->getRowDimension($key)->setRowHeight(35);
