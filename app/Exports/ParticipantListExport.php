@@ -29,7 +29,10 @@ class ParticipantListExport implements
         $this->event = $event;
         $this->number = 1;
         $this->index;
-        $this->date = Carbon::parse($event->end_at)
+        $this->end_date = Carbon::parse($event->end_at)
+            ->locale('id')
+            ->translatedFormat('d F Y');
+        $this->start_date = Carbon::parse($event->start_at)
             ->locale('id')
             ->translatedFormat('d F Y');
     }
@@ -41,9 +44,11 @@ class ParticipantListExport implements
                 'rdt_applicants.name',
                 'rdt_applicants.birth_date',
                 'rdt_applicants.workplace_name',
-                'rdt_invitations.lab_code_sample'
+                'rdt_invitations.lab_code_sample',
+                'rdt_events.city_code'
             )
             ->leftJoin('rdt_applicants', 'rdt_applicants.id', 'rdt_invitations.rdt_applicant_id')
+            ->leftJoin('rdt_events', 'rdt_events.id', 'rdt_invitations.rdt_event_id')
             ->where('rdt_invitations.rdt_event_id', $this->event->id)
             ->whereNotNull('rdt_invitations.lab_code_sample')
             ->whereNotNull('rdt_invitations.attended_at')
@@ -59,8 +64,8 @@ class ParticipantListExport implements
         return [
             ["FORMULIR F2 : REGISTER SPESIMEN"],
             ["Nama Kegiatan : {$this->event->event_name}"],
-            ["Tanggal :  {$this->date}"],
-            ["DINAS KESEHATAN : {$this->event->host_name}"],
+            ["Tanggal :  {$this->getDifferenceDays()}"],
+            ["DINAS KESEHATAN : {$this->event->city->name}"],
             [
                 'No',
                 'Nama Pasien',
@@ -110,5 +115,14 @@ class ParticipantListExport implements
         return [
             'E' => 45,
         ];
+    }
+
+    public function getDifferenceDays()
+    {
+        if ($this->event->start_at->diff($this->event->end_at)->days > 1) {
+            return $this->start_date . ' - ' . $this->end_date;
+        }
+
+        return $this->start_date;
     }
 }
