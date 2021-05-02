@@ -117,6 +117,11 @@ class ParticipantListExport implements
         ];
     }
 
+    /**
+     * Fungsi untuk menentukan kegiatan event harian atau rentang waktu
+     *
+     * @return void
+     */
     public function getDifferenceDays()
     {
         if ($this->event->start_at->diff($this->event->end_at)->days > 1) {
