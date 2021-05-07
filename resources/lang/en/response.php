@@ -13,5 +13,6 @@ return [
     */
 
     'sync_failed' => 'cannot sync to the server',
-    'sync_success'=> 'send success'
+    'sync_success'=> 'send success',
+    'export_failed' => 'Export Failed, Please Complete the Sample Code to be able to Export.'
 ];

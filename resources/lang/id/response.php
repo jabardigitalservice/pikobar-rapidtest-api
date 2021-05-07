@@ -13,5 +13,6 @@ return [
     */
 
     'sync_failed' => 'Data Gagal Dikirim ke Aplikasi SIM Lab',
-    'sync_success' => 'Data Berhasil Terkirim'
+    'sync_success' => 'Data Berhasil Terkirim',
+    'export_failed' => 'Ekspor Gagal, Silahkan lengkapi Kode Sample untuk dapat melakukan Ekspor.'
 ];
