@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Rdt;
 
 use App\Http\Controllers\Controller;
 use App\Entities\RdtEvent;
+use App\Exceptions\EmptyExportDataException;
 use DB;
 use Carbon\Carbon;
-use App\Exceptions\ExportNotEmptyDataException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
@@ -108,10 +108,10 @@ class RdtEventParticipantListExportF1Controller extends Controller
 
         $isDataEmpty = count($data) === 0;
 
-        // mitigate to eksport if there is no data to be exported
+        // mitigate to export if there is no data to be exported
         try {
-            throw_if($isDataEmpty, new ExportNotEmptyDataException());
-        } catch (ExportNotEmptyDataException $th) {
+            throw_if($isDataEmpty, new EmptyExportDataException());
+        } catch (EmptyExportDataException $th) {
             throw $th->validationException();
         }
 
