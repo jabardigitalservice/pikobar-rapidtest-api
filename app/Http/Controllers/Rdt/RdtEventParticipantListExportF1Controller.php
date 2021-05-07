@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Entities\RdtEvent;
 use DB;
 use Carbon\Carbon;
-use App\Exceptions\ExportNotContainDataException;
+use App\Exceptions\ExportNotEmptyDataException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
@@ -106,12 +106,12 @@ class RdtEventParticipantListExportF1Controller extends Controller
                 ->whereNotNull('rdt_invitations.attended_at')
                 ->get();
 
-        $isContainsData = count($data) === 0;
+        $isDataEmpty = count($data) === 0;
 
         // mitigate to eksport if there is no data to be exported
         try {
-            throw_if($isContainsData, new ExportNotContainDataException());
-        } catch (ExportNotContainDataException $th) {
+            throw_if($isDataEmpty, new ExportNotEmptyDataException());
+        } catch (ExportNotEmptyDataException $th) {
             throw $th->validationException();
         }
 

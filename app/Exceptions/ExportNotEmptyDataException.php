@@ -5,7 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Validation\ValidationException;
 
-class ExportNotContainDataException extends Exception
+class ExportNotEmptyDataException extends Exception
 {
     public function validationException()
     {
