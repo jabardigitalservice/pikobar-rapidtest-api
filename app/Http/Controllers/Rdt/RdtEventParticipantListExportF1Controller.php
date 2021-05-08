@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Rdt;
 
 use App\Http\Controllers\Controller;
 use App\Entities\RdtEvent;
-use App\Exceptions\EmptyExportDataException;
 use DB;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Illuminate\Validation\ValidationException;
 
 class RdtEventParticipantListExportF1Controller extends Controller
 {
@@ -109,10 +109,10 @@ class RdtEventParticipantListExportF1Controller extends Controller
         $isDataEmpty = count($data) === 0;
 
         // mitigate to export if there is no data to be exported
-        try {
-            throw_if($isDataEmpty, new EmptyExportDataException());
-        } catch (EmptyExportDataException $th) {
-            throw $th->validationException();
+        if ($isDataEmpty) {
+            throw ValidationException::withMessages([
+                'export_failed' => __('response.export_failed')
+            ]);
         }
 
         $personStatusValue = [
