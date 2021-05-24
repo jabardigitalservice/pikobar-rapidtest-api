@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtEventStoreRequest;
 use App\Http\Requests\Rdt\RdtEventUpdateRequest;
 use App\Http\Resources\RdtEventResource;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -28,8 +29,8 @@ class RdtEventController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $status = $request->input('status', 'all');
         $search = $request->input('search');
-        $eventDateStart = $request->input('start_date');
-        $eventDateEnd = $request->input('end_date');
+        $eventDateStart = Carbon::parse($request->input('start_date'));
+        $eventDateEnd = Carbon::parse($request->input('end_date'));
 
         $perPage = $this->getPaginationSize($perPage);
 
