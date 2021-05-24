@@ -43,7 +43,7 @@ class RdtEventController extends Controller
 
         $records = RdtEvent::query();
 
-        if ($request->has(['start_date', 'end_date'])) {
+        if ($request->has(['start_date', 'end_date']) && $eventDateStart >= $eventDateEnd) {
             $records->whereBetween('start_at', [$eventDateStart, $eventDateEnd])
                 ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd]);
         }
