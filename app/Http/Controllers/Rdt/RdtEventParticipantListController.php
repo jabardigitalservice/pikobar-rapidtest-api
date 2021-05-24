@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Rdt;
 use App\Entities\RdtEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RdtInvitationResource;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class RdtEventParticipantListController extends Controller
@@ -22,6 +23,8 @@ class RdtEventParticipantListController extends Controller
         $sortBy = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
         $search = $request->input('search');
+        $startDate = Carbon::parse($request->input('start_date'));
+        $endDate = Carbon::parse($request->input('end_date'));
 
         $perPage = $this->getPaginationSize($perPage);
 
@@ -30,6 +33,11 @@ class RdtEventParticipantListController extends Controller
             ->join('rdt_applicants', 'rdt_invitations.rdt_applicant_id', '=', 'rdt_applicants.id');
         $records->where('rdt_invitations.rdt_event_id', $rdtEvent->id);
         $records->whereNull('rdt_applicants.deleted_at');
+
+        if ($request->has(['start_date', 'end_date'])) {
+            $records->where('rdt_invitations.created_at', '>=', $startDate)
+                ->where('rdt_invitations.created_at', '<=', $endDate);
+        }
 
         if ($search) {
             $records->where(function ($query) use ($search) {
