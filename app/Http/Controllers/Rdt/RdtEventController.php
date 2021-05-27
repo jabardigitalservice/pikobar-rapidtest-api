@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtEventStoreRequest;
 use App\Http\Requests\Rdt\RdtEventUpdateRequest;
 use App\Http\Resources\RdtEventResource;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -28,6 +29,8 @@ class RdtEventController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $status = $request->input('status', 'all');
         $search = $request->input('search');
+        $eventDateStart = Carbon::parse($request->input('start_date'));
+        $eventDateEnd = Carbon::parse($request->input('end_date'));
 
         $perPage = $this->getPaginationSize($perPage);
 
@@ -40,6 +43,11 @@ class RdtEventController extends Controller
         }
 
         $records = RdtEvent::query();
+
+        if ($request->has(['start_date', 'end_date']) && $eventDateStart <= $eventDateEnd) {
+            $records->whereBetween('start_at', [$eventDateStart, $eventDateEnd])
+                ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd]);
+        }
 
         if ($request->has('city_code')) {
             $records->where('city_code', $request->input('city_code'));
