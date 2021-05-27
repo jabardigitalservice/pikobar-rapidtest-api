@@ -10,6 +10,7 @@ use App\Http\Requests\Rdt\RdtEventStoreRequest;
 use App\Http\Requests\Rdt\RdtEventUpdateRequest;
 use App\Http\Resources\RdtEventResource;
 use App\Traits\PaginationTrait;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -41,11 +42,18 @@ class RdtEventController extends Controller
         $sortOrder = $this->getValidSortOders($request->input('sort_order'));
         $params = $this->getValidParams($request);
         $params['user_city_code'] = $request->user()->city_code;
+        $eventDateStart = Carbon::parse($request->input('start_date'));
+        $eventDateEnd = Carbon::parse($request->input('end_date'));
 
         $records = RdtEvent::with(['city'])->withCount(['invitations', 'schedules']);
 
         $records = $this->searchList($records, $search);
         $records = $this->filterList($records, $params);
+
+        if ($request->has(['start_date', 'end_date']) && $eventDateStart <= $eventDateEnd) {
+            $records->whereBetween('start_at', [$eventDateStart, $eventDateEnd])
+                ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd]);
+        }
 
         $records->orderBy($sortBy, $sortOrder);
 
