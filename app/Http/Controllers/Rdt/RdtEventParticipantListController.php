@@ -35,8 +35,8 @@ class RdtEventParticipantListController extends Controller
         $records->whereNull('rdt_applicants.deleted_at');
 
         if ($request->has(['start_date', 'end_date'])) {
-            $records->where('rdt_invitations.created_at', '>=', $startDate)
-                ->where('rdt_invitations.created_at', '<=', $endDate);
+            $records->whereDate('rdt_invitations.created_at', '>=', $startDate)
+                ->whereDate('rdt_invitations.created_at', '<=', $endDate);
         }
 
         if ($search) {
