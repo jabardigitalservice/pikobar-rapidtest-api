@@ -40,7 +40,7 @@ jobs:
       - name: Deploy
         uses: AlexxNB/caprover-action@v1
         with:
-          server: ${{secrets.CAPROVER_SERVER}}
-          password: ${{secrets.CAPROVER_PASSWORD}}
-          appname: ${{secrets.CAPROVER_APPNAMEDEV}}
+          server: ${{ secrets.CAPROVER_SERVER }}
+          password: ${{ secrets.CAPROVER_PASSWORD }}
+          appname: ${{ secrets.CAPROVER_APPNAMEDEV }}
           branch: develop
