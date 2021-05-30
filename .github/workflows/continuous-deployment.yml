@@ -27,13 +27,13 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v1 
         with:
+          registry: ${{ environments.registry.URL }}
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_TOKEN }}
       - name: Build and push
-        id: docker_build
         uses: docker/build-push-action@v2
         with:
+          context: .
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: user/app:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+          tags: ${{ environments.registry.BASE_IMAGE_TAG }} + ":${GIT_COMMIT[0..7]}"
