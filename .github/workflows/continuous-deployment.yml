@@ -37,3 +37,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ environments.registry.BASE_IMAGE_TAG }} + ":${GIT_COMMIT[0..7]}"
+      - name: Deploy
+        uses: AlexxNB/caprover-action@v1
+        with:
+          server: ${{secrets.CAPROVER_SERVER}}
+          password: ${{secrets.CAPROVER_PASSWORD}}
+          appname: ${{secrets.CAPROVER_APPNAMEDEV}}
+          branch: develop
