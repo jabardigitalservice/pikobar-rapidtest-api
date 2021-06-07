@@ -58,6 +58,7 @@ class RdtApplicantController extends Controller
 
         $records = $this->searchList($search, $records);
         $records = $this->filterList($records, $params);
+        $records = $this->filterStatus($records, $params);
 
         $records->orderBy($sortBy, $sortOrder);
 
@@ -149,14 +150,6 @@ class RdtApplicantController extends Controller
                 $query->where('city_code', $value);
             });
 
-            $records->when($key == 'status', function ($query) use ($value) {
-                $query->when(strtoupper($value) == RdtApplicantStatus::NEW(), function ($query) {
-                    $query->whereEnum('status', RdtApplicantStatus::NEW());
-                }, function ($query) {
-                    $query->whereEnum('status', RdtApplicantStatus::APPROVED());
-                });
-            });
-
             $records->when($key == 'registration_date_start', function ($query) use ($value) {
                 $query->whereDate('registration_at', '>=', Carbon::parse($value));
             });
@@ -164,6 +157,21 @@ class RdtApplicantController extends Controller
             $records->when($key == 'registration_date_end', function ($query) use ($value) {
                 $query->whereDate('registration_at', '<=', Carbon::parse($value));
             });
+        }
+
+        return $records;
+    }
+
+    protected function filterStatus($records, $params)
+    {
+        foreach ($params as $key => $value) {
+            if ($key == 'status') {
+                if (strtoupper($value) == RdtApplicantStatus::NEW()) {
+                    $records->whereEnum('status', RdtApplicantStatus::NEW());
+                } else {
+                    $records->whereEnum('status', RdtApplicantStatus::APPROVED());
+                }
+            }
         }
 
         return $records;
