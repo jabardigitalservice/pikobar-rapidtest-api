@@ -182,18 +182,20 @@ class RdtEventController extends Controller
 
     protected function filterDate($request, $eventDateStart, $eventDateEnd, $records)
     {
-        $records->when($request->has(['start_date', 'end_date']), function ($query) use ($eventDateStart, $eventDateEnd) {
+        $records->when(
+            $request->has(['start_date', 'end_date']),
+            function ($query) use ($eventDateStart, $eventDateEnd) {
             // condition if event on 1 day
-            if ($eventDateStart == $eventDateEnd) {
-                $eventDateEnd = $eventDateEnd->endOfDay();
+                if ($eventDateStart == $eventDateEnd) {
+                    $eventDateEnd = $eventDateEnd->endOfDay();
+                }
+
+                $query->where(function ($query) use ($eventDateStart, $eventDateEnd) {
+                    $query->whereBetween('start_at', [$eventDateStart, $eventDateEnd])
+                    ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd]);
+                });
             }
-
-            $query->where(function ($query) use ($eventDateStart, $eventDateEnd) {
-                $query->whereBetween('start_at', [$eventDateStart, $eventDateEnd])
-                ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd]);
-            });
-
-        });
+        );
 
         return $records;
     }
