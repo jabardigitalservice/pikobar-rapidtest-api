@@ -50,13 +50,7 @@ class RdtEventController extends Controller
         $records = $this->searchList($records, $search);
         $records = $this->filterList($records, $params);
         $records = $this->filterStatus($records, $params);
-
-        if ($request->has(['start_date', 'end_date']) && $eventDateStart <= $eventDateEnd) {
-            $records->where(function ($query) use ($eventDateStart, $eventDateEnd) {
-                $query->whereBetween('start_at', [$eventDateStart, $eventDateEnd->endOfDay()])
-                ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd->endOfDay()]);
-            });
-        }
+        $records = $this->filterDate($request, $eventDateStart, $eventDateEnd, $records);
 
         $records->orderBy($sortBy, $sortOrder);
 
@@ -182,6 +176,24 @@ class RdtEventController extends Controller
                 }
             }
         }
+
+        return $records;
+    }
+
+    protected function filterDate($request, $eventDateStart, $eventDateEnd, $records)
+    {
+        $records->when($request->has(['start_date', 'end_date']), function ($query) use ($eventDateStart, $eventDateEnd) {
+            // condition if event on 1 day
+            if ($eventDateStart == $eventDateEnd) {
+                $eventDateEnd = $eventDateEnd->endOfDay();
+            }
+
+            $query->where(function ($query) use ($eventDateStart, $eventDateEnd) {
+                $query->whereBetween('start_at', [$eventDateStart, $eventDateEnd])
+                ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd]);
+            });
+
+        });
 
         return $records;
     }
