@@ -38,7 +38,7 @@ class RdtEventController extends Controller
     {
         $perpage = $request->input('per_page');
         $search = $request->input('search');
-        $sortBy = $this->getValidOrderBy($request->input('order_by'), 'event_name');
+        $sortBy = $this->getValidOrderBy($request->input('sort_by'), 'created_at');
         $sortOrder = $this->getValidSortOders($request->input('sort_order'));
         $params = $this->getValidParams($request);
         $params['user_city_code'] = $request->user()->city_code;
@@ -49,10 +49,13 @@ class RdtEventController extends Controller
 
         $records = $this->searchList($records, $search);
         $records = $this->filterList($records, $params);
+        $records = $this->filterStatus($records, $params);
 
         if ($request->has(['start_date', 'end_date']) && $eventDateStart <= $eventDateEnd) {
-            $records->whereBetween('start_at', [$eventDateStart, $eventDateEnd])
-                ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd]);
+            $records->where(function ($query) use ($eventDateStart, $eventDateEnd) {
+                $query->whereBetween('start_at', [$eventDateStart, $eventDateEnd->endOfDay()])
+                ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd->endOfDay()]);
+            });
         }
 
         $records->orderBy($sortBy, $sortOrder);
@@ -163,15 +166,21 @@ class RdtEventController extends Controller
             $records->when($key == 'user_city_code' && $value, function ($query) use ($value) {
                 $query->where('city_code', $value);
             });
+        }
 
-            $records->when($key === 'status', function ($query) use ($value) {
-                $query->when($value == 'draft', function ($query) {
-                    $query->whereEnum('status', RdtEventStatus::DRAFT());
-                });
-                $query->when($value == 'published', function ($query) {
-                    $query->whereEnum('status', RdtEventStatus::PUBLISHED());
-                });
-            });
+        return $records;
+    }
+
+    protected function filterStatus($records, $params)
+    {
+        foreach ($params as $key => $value) {
+            if ($key == 'status') {
+                if (strtoupper($value) === RdtEventStatus::DRAFT()) {
+                    $records->whereEnum('status', RdtEventStatus::DRAFT());
+                } else {
+                    $records->whereEnum('status', RdtEventStatus::PUBLISHED());
+                }
+            }
         }
 
         return $records;

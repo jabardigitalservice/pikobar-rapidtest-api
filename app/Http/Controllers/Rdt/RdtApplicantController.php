@@ -45,7 +45,7 @@ class RdtApplicantController extends Controller
     {
         $perPage = $request->input('per_page');
         $search = $request->input('search');
-        $sortBy = $this->getValidOrderBy($request->input('order_by'), 'name');
+        $sortBy = $this->getValidOrderBy($request->input('sort_by'), 'name');
         $sortOrder = $this->getValidSortOders($request->input('sort_order'));
         $params = $this->getValidParams($request);
         $params['user_city_code'] = $request->user()->city_code;
