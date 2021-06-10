@@ -4,14 +4,12 @@ namespace App\Http\Controllers\Rdt;
 
 use App\Http\Controllers\Controller;
 use App\Entities\RdtEvent;
-use File;
 use DB;
 use Carbon\Carbon;
-use App\Enums\PersonCaseStatusEnum;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-use Box\Spout\Common\Entity\Row;
+use Illuminate\Validation\ValidationException;
 
 class RdtEventParticipantListExportF1Controller extends Controller
 {
@@ -108,6 +106,14 @@ class RdtEventParticipantListExportF1Controller extends Controller
                 ->whereNotNull('rdt_invitations.attended_at')
                 ->get();
 
+        $isDataEmpty = count($data) === 0;
+
+        // mitigate to export if there is no data to be exported
+        if ($isDataEmpty) {
+            throw ValidationException::withMessages([
+                'export_failed' => __('response.export_failed')
+            ]);
+        }
 
         $personStatusValue = [
                     'CONFIRMED' => 'konfirmasi',
@@ -144,7 +150,7 @@ class RdtEventParticipantListExportF1Controller extends Controller
                             ->format('Y-m-d');
 
             $eventStartAt = Carbon::parse($rdtEvent->start_at)->format('dmY');
-            
+
             $row =  [
                         $row->number,
                         $row->lab_code_sample ,

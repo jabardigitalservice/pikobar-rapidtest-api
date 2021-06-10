@@ -67,28 +67,4 @@ class RdtEventPolicy
     {
         return $user->hasPermission('delete-events');
     }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Entities\User  $user
-     * @param  \App\Entities\RdtEvent  $rdtEvent
-     * @return mixed
-     */
-    public function restore(User $user, RdtEvent $rdtEvent)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Entities\User  $user
-     * @param  \App\Entities\RdtEvent  $rdtEvent
-     * @return mixed
-     */
-    public function forceDelete(User $user, RdtEvent $rdtEvent)
-    {
-        //
-    }
 }

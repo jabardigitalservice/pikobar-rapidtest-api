@@ -1,0 +1,54 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CD
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push events but only for the develop branch
+  push:
+    branches: [ develop ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a job called "build push deploy"
+  docker:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Harbor Registry
+        run: |
+          docker login https://registry.digitalservice.id -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_TOKEN }}
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Github short commit
+        uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 6
+      - run: echo $SHA
+        env: 
+          SHA: ${{ steps.short-sha.outputs.sha }}
+      - run: echo $SHA
+        env: 
+          SHA: ${{ env.SHA }}
+      - name: Build and push images
+        run: |
+          docker build -t registry.digitalservice.id/pikobar-tesmasif/tesmasif-api:${{ env.SHA }} .
+          docker push registry.digitalservice.id/pikobar-tesmasif/tesmasif-api:${{ env.SHA }}
+          echo "::set-output name=image::registry.digitalservice.id/pikobar-tesmasif/tesmasif-api:${{ env.SHA }}"
+      - name: Deploy to caprover
+        uses: floms/action-caprover@v1
+        with:
+          host: ${{ secrets.CAPROVER_SERVER }}
+          password: ${{ secrets.CAPROVER_PASSWORD }}
+          app: ${{ secrets.CAPROVER_APPNAMEDEV }}
+          image: registry.digitalservice.id/pikobar-tesmasif/tesmasif-api:${{ env.SHA }}

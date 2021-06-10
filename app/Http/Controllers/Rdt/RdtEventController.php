@@ -9,11 +9,24 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtEventStoreRequest;
 use App\Http\Requests\Rdt\RdtEventUpdateRequest;
 use App\Http\Resources\RdtEventResource;
+use App\Traits\PaginationTrait;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class RdtEventController extends Controller
 {
+    use PaginationTrait;
+
+    public $sort = [
+        'id',
+        'event_name',
+        'registration_type',
+        'start_at',
+        'end_at',
+        'status',
+        'created_at',
+    ];
 
     /**
      * Display a listing of the resource.
@@ -23,50 +36,25 @@ class RdtEventController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 15);
-        $sortBy = $request->input('sort_by', 'created_at');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $status = $request->input('status', 'all');
+        $perpage = $request->input('per_page');
         $search = $request->input('search');
+        $sortBy = $this->getValidOrderBy($request->input('sort_by'), 'created_at');
+        $sortOrder = $this->getValidSortOders($request->input('sort_order'));
+        $params = $this->getValidParams($request);
+        $params['user_city_code'] = $request->user()->city_code;
+        $eventDateStart = Carbon::parse($request->input('start_date'));
+        $eventDateEnd = Carbon::parse($request->input('end_date'));
 
-        $perPage = $this->getPaginationSize($perPage);
+        $records = RdtEvent::with(['city'])->withCount(['invitations', 'schedules']);
 
-        if (
-            in_array($sortBy, [
-                'id', 'event_name', 'registration_type', 'start_at', 'end_at', 'status', 'created_at',
-            ]) === false
-        ) {
-            $sortBy = 'event_name';
-        }
-
-        $records = RdtEvent::query();
-
-        if ($request->has('city_code')) {
-            $records->where('city_code', $request->input('city_code'));
-        }
-
-        if ($request->user()->city_code) {
-            $records->where('city_code', $request->user()->city_code);
-        }
-
-        if ($search) {
-            $records->where(function ($query) use ($search) {
-                $query->where('event_name', 'like', '%' . $search . '%');
-            });
-        }
-
-        if ($status === 'draft') {
-            $records->whereEnum('status', RdtEventStatus::DRAFT());
-        }
-        if ($status === 'published') {
-            $records->whereEnum('status', RdtEventStatus::PUBLISHED());
-        }
+        $records = $this->searchList($records, $search);
+        $records = $this->filterList($records, $params);
+        $records = $this->filterStatus($records, $params);
+        $records = $this->filterDate($request, $eventDateStart, $eventDateEnd, $records);
 
         $records->orderBy($sortBy, $sortOrder);
-        $records->with(['city']);
-        $records->withCount(['invitations', 'schedules']);
 
-        return RdtEventResource::collection($records->paginate($perPage));
+        return RdtEventResource::collection($this->getRecords($records, $perpage));
     }
 
     /**
@@ -153,13 +141,62 @@ class RdtEventController extends Controller
         return response()->json(['message' => 'DELETED']);
     }
 
-    protected function getPaginationSize($perPage)
+    protected function searchList($records, $search)
     {
-        $perPageAllowed = [50, 100, 500];
-
-        if (in_array($perPage, $perPageAllowed)) {
-            return $perPage;
+        if ($search) {
+            $records->where('event_name', 'like', '%' . $search . '%');
         }
-        return 15;
+
+        return $records;
+    }
+
+    protected function filterList($records, $params)
+    {
+        foreach ($params as $key => $value) {
+            $records->when($key == 'city_code', function ($query) use ($value) {
+                $query->where('city_code', $value);
+            });
+
+            $records->when($key == 'user_city_code' && $value, function ($query) use ($value) {
+                $query->where('city_code', $value);
+            });
+        }
+
+        return $records;
+    }
+
+    protected function filterStatus($records, $params)
+    {
+        foreach ($params as $key => $value) {
+            if ($key == 'status') {
+                if (strtoupper($value) == RdtEventStatus::DRAFT()) {
+                    $records->whereEnum('status', RdtEventStatus::DRAFT());
+                } else {
+                    $records->whereEnum('status', RdtEventStatus::PUBLISHED());
+                }
+            }
+        }
+
+        return $records;
+    }
+
+    protected function filterDate($request, $eventDateStart, $eventDateEnd, $records)
+    {
+        $records->when(
+            $request->has(['start_date', 'end_date']),
+            function ($query) use ($eventDateStart, $eventDateEnd) {
+            // condition if event on 1 day
+                if ($eventDateStart == $eventDateEnd) {
+                    $eventDateEnd = $eventDateEnd->endOfDay();
+                }
+
+                $query->where(function ($query) use ($eventDateStart, $eventDateEnd) {
+                    $query->whereBetween('start_at', [$eventDateStart, $eventDateEnd])
+                    ->orWhereBetween('end_at', [$eventDateStart, $eventDateEnd]);
+                });
+            }
+        );
+
+        return $records;
     }
 }

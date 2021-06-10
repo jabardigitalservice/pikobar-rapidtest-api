@@ -8,12 +8,33 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtApplicantStoreRequest;
 use App\Http\Requests\Rdt\RdtApplicantUpdateRequest;
 use App\Http\Resources\RdtApplicantResource;
+use App\Traits\PaginationTrait;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 
 class RdtApplicantController extends Controller
 {
+    use PaginationTrait;
+
+    public $sort = [
+        'id',
+        'name',
+        'gender',
+        'age',
+        'person_status',
+        'created_at',
+        'updated_at',
+        'registration_at',
+    ];
+
+    public $allowedFilter = [
+        'person_status',
+        'city_code',
+        'status',
+        'pikobar_session_id',
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -22,86 +43,26 @@ class RdtApplicantController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 15);
-        $sortBy = $request->input('sort_by', 'created_at');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $status = $request->input('status', 'new');
+        $perPage = $request->input('per_page');
         $search = $request->input('search');
-        $sessionId = $request->input('session_id');
-        $registrationDateStart = $request->input('registration_date_start');
-        $registrationDateEnd = $request->input('registration_date_end');
-        $personStatus = $request->input('person_status');
-        $perPage = $this->getPaginationSize($perPage);
-
-        if (
-            in_array($sortBy, [
-                'id', 'name', 'gender', 'age', 'person_status', 'created_at', 'updated_at', 'registration_at',
-            ]) === false
-        ) {
-            $sortBy = 'name';
-        }
+        $sortBy = $this->getValidOrderBy($request->input('sort_by'), 'name');
+        $sortOrder = $this->getValidSortOders($request->input('sort_order'));
+        $params = $this->getValidParams($request);
+        $params['user_city_code'] = $request->user()->city_code;
 
         if ($sortBy === 'age') {
             $sortBy = 'birth_date';
         }
 
-        $statusEnum = 'new';
+        $records = RdtApplicant::with(['invitations', 'invitations.event', 'city', 'district', 'village']);
 
-        if ($status === 'new') {
-            $statusEnum = RdtApplicantStatus::NEW();
-        }
-
-        if ($status === 'approved') {
-            $statusEnum = RdtApplicantStatus::APPROVED();
-        }
-
-        $records = RdtApplicant::query();
-
-        if ($search) {
-            $records->where(function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('registration_code', 'like', '%' . $search . '%')
-                    ->orWhere('workplace_name', 'like', '%' . $search . '%')
-                    ->orWhere('nik', $search)
-                    ->orWhere('pikobar_session_id', $search)
-                    ->orWhere('phone_number', 'like', '%' . $search . '%');
-            });
-        }
-
-        if ($registrationDateStart) {
-            $records->whereBetween(DB::raw('CAST(registration_at AS DATE)'), [
-                $registrationDateStart, $registrationDateEnd,
-            ]);
-        }
-
-        if ($personStatus) {
-            $records->where('person_status', $personStatus);
-        }
-
-        if ($request->has('city_code')) {
-            $records->where('city_code', $request->input('city_code'));
-        }
-
-        if ($request->user()->city_code) {
-            $records->where('city_code', $request->user()->city_code);
-        }
-
-        if ($request->has('status')) {
-            $records->whereEnum('status', $statusEnum);
-        }
+        $records = $this->searchList($search, $records);
+        $records = $this->filterList($records, $params);
+        $records = $this->filterStatus($records, $params);
 
         $records->orderBy($sortBy, $sortOrder);
-        $records->with(['invitations', 'invitations.event', 'city', 'district', 'village']);
 
-        if ($request->has('session_id')) {
-            $records->where('pikobar_session_id', '=', $sessionId);
-        }
-
-        if (strtoupper($perPage) === 'ALL') {
-            return RdtApplicantResource::collection($records->get());
-        }
-
-        return RdtApplicantResource::collection($records->paginate($perPage));
+        return RdtApplicantResource::collection($this->getRecords($records, $perPage));
     }
 
     /**
@@ -162,13 +123,57 @@ class RdtApplicantController extends Controller
         return response()->json(['message' => 'DELETED']);
     }
 
-    protected function getPaginationSize($perPage)
+    protected function searchList($search, $records)
     {
-        $perPageAllowed = [50, 100, 500];
-
-        if (in_array($perPage, $perPageAllowed)) {
-            return $perPage;
+        if ($search) {
+            $records->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('registration_code', 'like', '%' . $search . '%')
+                    ->orWhere('workplace_name', 'like', '%' . $search . '%')
+                    ->orWhere('nik', $search)
+                    ->orWhere('pikobar_session_id', $search)
+                    ->orWhere('phone_number', 'like', '%' . $search . '%');
+            });
         }
-        return 15;
+
+        return $records;
+    }
+
+    protected function filterList($records, $params)
+    {
+        foreach ($params as $key => $value) {
+            $records->when(in_array($key, $this->allowedFilter), function ($query) use ($key, $value) {
+                $query->where($key, $value);
+            });
+
+            $records->when($key == 'user_city_code' && $value, function ($query) use ($value) {
+                $query->where('city_code', $value);
+            });
+
+            $records->when($key == 'registration_date_start', function ($query) use ($value) {
+                $query->whereDate('registration_at', '>=', Carbon::parse($value));
+            });
+
+            $records->when($key == 'registration_date_end', function ($query) use ($value) {
+                $query->whereDate('registration_at', '<=', Carbon::parse($value));
+            });
+        }
+
+        return $records;
+    }
+
+    protected function filterStatus($records, $params)
+    {
+        foreach ($params as $key => $value) {
+            if ($key == 'status') {
+                if (strtoupper($value) == RdtApplicantStatus::NEW()) {
+                    $records->whereEnum('status', RdtApplicantStatus::NEW());
+                } else {
+                    $records->whereEnum('status', RdtApplicantStatus::APPROVED());
+                }
+            }
+        }
+
+        return $records;
     }
 }

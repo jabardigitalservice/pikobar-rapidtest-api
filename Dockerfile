@@ -1,30 +1,44 @@
-FROM alpine:3.11
+FROM alpine:3.13
 
 LABEL Maintainer="Yoga Hanggara <yohang88@gmail.com>" \
-      Description="Lightweight Laravel app container with Nginx 1.16 & PHP-FPM 7.4 based on Alpine Linux (forked from trafex/alpine-nginx-php7)."
-
-ADD https://packages.whatwedo.ch/php-alpine.rsa.pub /etc/apk/keys/php-alpine.rsa.pub
-
-# make sure you can use HTTPS
-RUN apk --update add ca-certificates
-
-RUN echo "https://packages.whatwedo.ch/php-alpine/v3.11/php-7.4" >> /etc/apk/repositories
+    Description="Lightweight Laravel app container with Nginx 1.16 & PHP-FPM 7.4 based on Alpine Linux (forked from trafex/alpine-nginx-php7)."
 
 # Install packages
-RUN apk --no-cache add php php-fpm php-opcache php-json php-openssl php-curl php-phar php-session \
-    php-pdo php-pdo_mysql php-mysqli php-pdo_sqlite \
-    php-mbstring php-dom php-gd php-iconv php-bcmath php-gmp php-zip \
-    php-zlib php-xml php-intl php-dom php-xml php-xmlreader php-ctype \
-    nginx supervisor curl
+RUN apk --no-cache add \
+    php7 \
+    php7-fpm \
+    php7-opcache \
+    php7-json \
+    php7-openssl \
+    php7-curl \
+    php7-phar \
+    php7-session \
+    php7-pdo \
+    php7-pdo_mysql \
+    php7-pdo_sqlite \
+    php7-mbstring \
+    php7-dom \
+    php7-gd \
+    php7-iconv \
+    php7-zip \
+    php7-zlib \
+    php7-xml \
+    php7-intl \
+    php7-dom \
+    php7-simplexml \
+    php7-xmlwriter \
+    php7-xmlreader \
+    php7-ctype \
+    php7-fileinfo \
+    php7-tokenizer \
+    nginx \
+    supervisor
 
-# https://github.com/codecasts/php-alpine/issues/21
-RUN ln -s /usr/bin/php7 /usr/bin/php
+# Remove default.conf nginx
+RUN rm /etc/nginx/conf.d/default.conf
 
 # Configure nginx
 COPY docker/nginx.conf /etc/nginx/nginx.conf
-
-# Remove default server definition
-RUN rm /etc/nginx/conf.d/default.conf
 
 # Configure PHP-FPM
 COPY docker/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
@@ -42,9 +56,9 @@ RUN chmod +x docker-entrypoint.sh
 
 # Make sure files/folders needed by the processes are accessable when they run under the nobody user
 RUN chown -R nobody.nobody /var/www/html && \
-  chown -R nobody.nobody /run && \
-  chown -R nobody.nobody /var/lib/nginx && \
-  chown -R nobody.nobody /var/log/nginx
+    chown -R nobody.nobody /run && \
+    chown -R nobody.nobody /var/lib/nginx && \
+    chown -R nobody.nobody /var/log/nginx
 
 # Switch to use a non-root user from here on
 USER nobody
@@ -65,6 +79,3 @@ EXPOSE 8080
 
 # Let supervisord start nginx & php-fpm
 ENTRYPOINT ["/bin/sh", "/docker-entrypoint.sh"]
-
-# Configure a healthcheck to validate that everything is up&running
-HEALTHCHECK --timeout=10s CMD curl --silent --fail http://127.0.0.1:8080
