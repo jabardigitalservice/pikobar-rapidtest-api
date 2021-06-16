@@ -185,10 +185,8 @@ class RdtEventController extends Controller
         $records->when(
             $request->has(['start_date', 'end_date']),
             function ($query) use ($eventDateStart, $eventDateEnd) {
-            // condition if event on 1 day
-                if ($eventDateStart == $eventDateEnd) {
-                    $eventDateEnd = $eventDateEnd->endOfDay();
-                }
+                $eventDateStart = $eventDateStart->startOfDay();
+                $eventDateEnd = $eventDateEnd->endOfDay();
 
                 $query->where(function ($query) use ($eventDateStart, $eventDateEnd) {
                     $query->whereBetween('start_at', [$eventDateStart, $eventDateEnd])

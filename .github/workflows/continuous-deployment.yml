@@ -29,7 +29,7 @@ jobs:
           docker login https://registry.digitalservice.id -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_TOKEN }}
       - name: Check out code
         uses: actions/checkout@v2
-      - name: Github short commit
+      - name: Github short-commit
         uses: benjlevesque/short-sha@v1.2
         id: short-sha
         with:
