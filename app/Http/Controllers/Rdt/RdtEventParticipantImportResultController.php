@@ -8,10 +8,12 @@ use App\Enums\LabResultType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtInvitationImportRequest;
 use App\Notifications\TestResult;
+use App\Rules\LabResultRule;
 use App\Traits\ImportTrait;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Spatie\Enum\Laravel\Rules\EnumRule;
 
 class RdtEventParticipantImportResultController extends Controller
@@ -110,9 +112,9 @@ class RdtEventParticipantImportResultController extends Controller
 
         if (!$this->result['errors_count'] > 0) {
             DB::commit();
-            $this->setMessage('Sukses import data.');
+            $this->setMessage('Impor hasil tes berhasil dilakukan.');
         } else {
-            $this->setMessage('Gagal import data.');
+            $this->setMessage('Impor hasil tes tidak dapat dilakukan. Lengkapi kode pendaftaran & hasil tes untuk melanjutkan.');
             DB::rollBack();
         }
 
@@ -129,7 +131,7 @@ class RdtEventParticipantImportResultController extends Controller
     {
         return [
             'kode_pendaftaran' => 'required',
-            'hasil' => ['required', new EnumRule(LabResultType::class)],
+            'hasil' => ['required', new LabResultRule()],
             'notify' => 'required'
         ];
     }
