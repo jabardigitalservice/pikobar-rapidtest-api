@@ -114,7 +114,9 @@ class RdtEventParticipantImportResultController extends Controller
             DB::commit();
             $this->setMessage('Impor hasil tes berhasil dilakukan.');
         } else {
-            $this->setMessage('Impor hasil tes tidak dapat dilakukan. Lengkapi kode pendaftaran & hasil tes untuk melanjutkan.');
+            $this->setMessage(
+                'Impor hasil tes tidak dapat dilakukan. Lengkapi kode pendaftaran & hasil tes untuk melanjutkan.'
+            );
             DB::rollBack();
         }
 
