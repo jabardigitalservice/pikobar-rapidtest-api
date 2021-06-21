@@ -137,9 +137,4 @@ class RdtEventParticipantImportResultController extends Controller
             'notify' => 'required'
         ];
     }
-
-    public function uniqueBy()
-    {
-        return '';
-    }
 }
