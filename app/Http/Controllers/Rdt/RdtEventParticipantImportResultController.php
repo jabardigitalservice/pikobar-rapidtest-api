@@ -115,11 +115,9 @@ class RdtEventParticipantImportResultController extends Controller
 
         if (!$this->result['errors_count'] > 0) {
             DB::commit();
-            $this->result['message'] = 'Impor hasil tes berhasil dilakukan.';
+            $this->result['message'] = __('response.import_success');
         } else {
-            $this->result[
-                'message'
-            ] = 'Impor hasil tes tidak dapat dilakukan. Lengkapi kode pendaftaran & hasil tes untuk melanjutkan.';
+            $this->result['message'] = __('response.import_failed');
             DB::rollBack();
         }
 
