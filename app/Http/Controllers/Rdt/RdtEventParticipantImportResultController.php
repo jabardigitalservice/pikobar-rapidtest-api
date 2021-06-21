@@ -4,21 +4,24 @@ namespace App\Http\Controllers\Rdt;
 
 use App\Entities\RdtEvent;
 use App\Entities\RdtInvitation;
-use App\Enums\LabResultType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtInvitationImportRequest;
 use App\Notifications\TestResult;
 use App\Rules\LabResultRule;
-use App\Traits\ImportTrait;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
-use Spatie\Enum\Laravel\Rules\EnumRule;
+use Illuminate\Support\Facades\Validator;
 
 class RdtEventParticipantImportResultController extends Controller
 {
-    use ImportTrait;
+    public $result = [
+        'message' => 'Sukses membaca file import excel',
+        'data' => [],
+        'errors' => [],
+        'errors_count' => 0,
+    ];
 
     public function __invoke(RdtInvitationImportRequest $request, RdtEvent $rdtEvent)
     {
@@ -44,12 +47,12 @@ class RdtEventParticipantImportResultController extends Controller
                     continue;
                 }
 
-                $arrHeader['kode_pendaftaran']  = $rowArray[0];
-                $arrHeader['hasil']             = strtoupper($rowArray[1]);
-                $arrHeader['notify']            = strtoupper($rowArray[2]);
+                $arrHeader['kode_pendaftaran'] = $rowArray[0];
+                $arrHeader['hasil'] = strtoupper($rowArray[1]);
+                $arrHeader['notify'] = strtoupper($rowArray[2]);
 
+                // validation import excel
                 $this->validated($arrHeader, $rowsCount);
-                $this->setData($arrHeader);
 
                 $registrationCode = $arrHeader['kode_pendaftaran'];
                 $result = $arrHeader['hasil'];
@@ -90,7 +93,7 @@ class RdtEventParticipantImportResultController extends Controller
                 ]);
 
                 $invitation->lab_result_type = $result;
-                $invitation->result_at       = $now;
+                $invitation->result_at = $now;
                 $invitation->save();
 
                 if ($notify === 'YES') {
@@ -112,11 +115,11 @@ class RdtEventParticipantImportResultController extends Controller
 
         if (!$this->result['errors_count'] > 0) {
             DB::commit();
-            $this->setMessage('Impor hasil tes berhasil dilakukan.');
+            $this->result['message'] = 'Impor hasil tes berhasil dilakukan.';
         } else {
-            $this->setMessage(
-                'Impor hasil tes tidak dapat dilakukan. Lengkapi kode pendaftaran & hasil tes untuk melanjutkan.'
-            );
+            $this->result[
+                'message'
+            ] = 'Impor hasil tes tidak dapat dilakukan. Lengkapi kode pendaftaran & hasil tes untuk melanjutkan.';
             DB::rollBack();
         }
 
@@ -129,12 +132,38 @@ class RdtEventParticipantImportResultController extends Controller
         return response()->json($this->result, $this->getStatusCodeResponse());
     }
 
+    public function validated(array $rows, $key)
+    {
+        $validator = Validator::make($rows, $this->rules());
+        $this->result['errors'][$key] = null;
+        if ($validator->fails()) {
+            $this->setError($key, $validator->errors()->all());
+        }
+
+        array_push($this->result['data'], $rows);
+    }
+
     protected function rules()
     {
         return [
             'kode_pendaftaran' => 'required',
             'hasil' => ['required', new LabResultRule()],
-            'notify' => 'required'
+            'notify' => 'required',
         ];
+    }
+
+    protected function getStatusCodeResponse()
+    {
+        return $this->result['errors_count'] > 0 ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK;
+    }
+
+    protected function setError($key, $message)
+    {
+        if (is_array($message)) {
+            $this->result['errors'][$key] = $message;
+        } else {
+            $this->result['errors'][$key][] = $message;
+        }
+        ++$this->result['errors_count'];
     }
 }
