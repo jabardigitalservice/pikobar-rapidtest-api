@@ -119,7 +119,7 @@ return [
 
     'nik'       => ':attribute tidak sesuai format NIK.',
     'recaptcha' => ':attribute tidak valid.',
-    'excel_ext' => 'Format :attribute harus berupa file bertipe: csv, xls, xlsx.',
+    'excel_ext' => 'Impor hasil tidak dapat dilakukan karena kesalahan format file. Mohon unggah file dalam bentuk excel (.xlsx)',
 
     /*
     |---------------------------------------------------------------------------------------
