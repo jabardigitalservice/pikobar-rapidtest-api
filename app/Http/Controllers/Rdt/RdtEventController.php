@@ -49,7 +49,6 @@ class RdtEventController extends Controller
 
         $records = $this->searchList($records, $search);
         $records = $this->filterList($records, $params);
-        $records = $this->filterStatus($records, $params);
         $records = $this->filterDate($request, $eventDateStart, $eventDateEnd, $records);
 
         $records->orderBy($sortBy, $sortOrder);
@@ -160,21 +159,10 @@ class RdtEventController extends Controller
             $records->when($key == 'user_city_code' && $value, function ($query) use ($value) {
                 $query->where('city_code', $value);
             });
-        }
 
-        return $records;
-    }
-
-    protected function filterStatus($records, $params)
-    {
-        foreach ($params as $key => $value) {
-            if ($key == 'status') {
-                if (strtoupper($value) == RdtEventStatus::DRAFT()) {
-                    $records->whereEnum('status', RdtEventStatus::DRAFT());
-                } else {
-                    $records->whereEnum('status', RdtEventStatus::PUBLISHED());
-                }
-            }
+            $records->when($key === 'status', function ($query) use ($value) {
+                $query->whereStatus($value);
+            });
         }
 
         return $records;

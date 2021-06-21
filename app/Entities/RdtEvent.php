@@ -80,4 +80,15 @@ class RdtEvent extends Model
     {
         return $this->hasMany(RdtInvitation::class, 'rdt_event_id')->whereNotNull('notified_result_at');
     }
+
+    public function scopeWhereStatus($query, $value)
+    {
+        if (strtoupper($value) == RdtEventStatus::DRAFT()) {
+            $query->whereEnum('status', RdtEventStatus::DRAFT());
+        } else {
+            $query->whereEnum('status', RdtEventStatus::PUBLISHED());
+        }
+
+        return $query;
+    }
 }
