@@ -119,6 +119,7 @@ return [
 
     'nik'       => ':attribute tidak sesuai format NIK.',
     'recaptcha' => ':attribute tidak valid.',
+    'excel_ext' => 'Format :attribute harus berupa file bertipe: csv, xls, xlsx.',
 
     /*
     |---------------------------------------------------------------------------------------

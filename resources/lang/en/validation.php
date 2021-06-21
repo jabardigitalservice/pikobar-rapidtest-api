@@ -116,6 +116,9 @@ return [
     'uploaded' => 'The :attribute failed to upload.',
     'url' => 'The :attribute format is invalid.',
     'uuid' => 'The :attribute must be a valid UUID.',
+    'nik'       => ':attribute does not match the NIK format.',
+    'recaptcha' => ':attribute is invalid.',
+    'excel_ext' => 'Format :attribute must be a file of type: csv, xls, xlsx.',
 
     /*
     |--------------------------------------------------------------------------

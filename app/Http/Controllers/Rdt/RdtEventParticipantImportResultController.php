@@ -4,15 +4,19 @@ namespace App\Http\Controllers\Rdt;
 
 use App\Entities\RdtEvent;
 use App\Entities\RdtInvitation;
+use App\Enums\LabResultType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtInvitationImportRequest;
 use App\Notifications\TestResult;
+use App\Traits\ImportTrait;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Spatie\Enum\Laravel\Rules\EnumRule;
 
 class RdtEventParticipantImportResultController extends Controller
 {
+    use ImportTrait;
 
     public function __invoke(RdtInvitationImportRequest $request, RdtEvent $rdtEvent)
     {
@@ -27,7 +31,9 @@ class RdtEventParticipantImportResultController extends Controller
 
         $rowsCount = 0;
         $now = now();
+        $arrHeader = [];
 
+        DB::beginTransaction();
         foreach ($reader->getSheetIterator() as $sheet) {
             foreach ($sheet->getRowIterator() as $index => $row) {
                 $rowArray = $row->toArray();
@@ -36,9 +42,16 @@ class RdtEventParticipantImportResultController extends Controller
                     continue;
                 }
 
-                $registrationCode = $rowArray[0];
-                $result           = strtoupper($rowArray[1]);
-                $notify           = strtoupper($rowArray[2]);
+                $arrHeader['kode_pendaftaran']  = $rowArray[0];
+                $arrHeader['hasil']             = strtoupper($rowArray[1]);
+                $arrHeader['notify']            = strtoupper($rowArray[2]);
+
+                $this->validated($arrHeader, $rowsCount);
+                $this->setData($arrHeader);
+
+                $registrationCode = $arrHeader['kode_pendaftaran'];
+                $result = $arrHeader['hasil'];
+                $notify = $arrHeader['notify'];
 
                 /**
                  * @var RdtInvitation $invitation
@@ -48,7 +61,7 @@ class RdtEventParticipantImportResultController extends Controller
                     ->first();
 
                 // Handling error, skip if not found
-                if ($invitation === null) {
+                if ($invitation === null || $this->result['errors'][$rowsCount] != null) {
                     Log::info('IMPORT_TEST_RESULT_INVITATION_NOTFOUND', [
                         'rdt_event_id' => $rdtEvent->id,
                         'registration_code' => $registrationCode,
@@ -57,7 +70,11 @@ class RdtEventParticipantImportResultController extends Controller
                         'user_id' => $request->user()->id,
                     ]);
 
+                    $rowsCount++;
+
                     continue;
+                } else {
+                    $rowsCount++;
                 }
 
                 Log::info('IMPORT_TEST_RESULT_ROW', [
@@ -88,9 +105,15 @@ class RdtEventParticipantImportResultController extends Controller
                         'user_id' => $request->user()->id,
                     ]);
                 }
-
-                $rowsCount++;
             }
+        }
+
+        if (!$this->result['errors_count'] > 0) {
+            DB::commit();
+            $this->setMessage('Sukses import data.');
+        } else {
+            $this->setMessage('Gagal import data.');
+            DB::rollBack();
         }
 
         Log::info('IMPORT_TEST_RESULT_SUCCESS', [
@@ -99,6 +122,20 @@ class RdtEventParticipantImportResultController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        return response()->json(['message' => 'OK']);
+        return response()->json($this->result, $this->getStatusCodeResponse());
+    }
+
+    protected function rules()
+    {
+        return [
+            'kode_pendaftaran' => 'required',
+            'hasil' => ['required', new EnumRule(LabResultType::class)],
+            'notify' => 'required'
+        ];
+    }
+
+    public function uniqueBy()
+    {
+        return '';
     }
 }
