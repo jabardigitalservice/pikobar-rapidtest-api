@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Rdt;
 
+use App\Rules\ExcelExtensionRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RdtInvitationImportRequest extends FormRequest
@@ -24,7 +25,7 @@ class RdtInvitationImportRequest extends FormRequest
     public function rules()
     {
         return [
-            'file' => 'required|mimes:xlsx'
+            'file' => new ExcelExtensionRule(optional($this->file)->getClientOriginalExtension())
         ];
     }
 }
