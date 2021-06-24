@@ -17,10 +17,9 @@ use Illuminate\Support\Facades\Validator;
 class RdtEventParticipantImportResultController extends Controller
 {
     public $result = [
-        'message' => 'Sukses membaca file import excel',
-        'data' => [],
-        'errors' => [],
+        'message' => '',
         'errors_count' => 0,
+        'errors' => [],
     ];
 
     public function __invoke(RdtInvitationImportRequest $request, RdtEvent $rdtEvent)
@@ -66,7 +65,7 @@ class RdtEventParticipantImportResultController extends Controller
                     ->first();
 
                 // Handling error, skip if not found
-                if ($invitation === null || $this->result['errors'][$rowsCount] != null) {
+                if ($invitation === null || count($this->result['errors']) > 0) {
                     Log::info('IMPORT_TEST_RESULT_INVITATION_NOTFOUND', [
                         'rdt_event_id' => $rdtEvent->id,
                         'registration_code' => $registrationCode,
@@ -76,7 +75,6 @@ class RdtEventParticipantImportResultController extends Controller
                     ]);
 
                     $rowsCount++;
-
                     continue;
                 } else {
                     $rowsCount++;
@@ -133,12 +131,10 @@ class RdtEventParticipantImportResultController extends Controller
     public function validated(array $rows, $key)
     {
         $validator = Validator::make($rows, $this->rules());
-        $this->result['errors'][$key] = null;
+        $msgErr = str_replace('.', '', implode(', ', $validator->errors()->all()));
         if ($validator->fails()) {
-            $this->setError($key, $validator->errors()->all());
+            $this->setError($key, $msgErr);
         }
-
-        array_push($this->result['data'], $rows);
     }
 
     protected function rules()
@@ -157,11 +153,10 @@ class RdtEventParticipantImportResultController extends Controller
 
     protected function setError($key, $message)
     {
-        if (is_array($message)) {
-            $this->result['errors'][$key] = $message;
-        } else {
-            $this->result['errors'][$key][] = $message;
+        if ($message) {
+            $this->result['errors'][$key + 1] = 'Baris ' . ($key + 1) . ': ' . $message;
         }
+
         ++$this->result['errors_count'];
     }
 }
