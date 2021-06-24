@@ -36,6 +36,6 @@ class LabResultRule implements Rule
      */
     public function message()
     {
-        return 'Terjadi kesalahan dalam hasil tes. Lengkapi hasil tes dalam Bahasa Inggris.';
+        return 'Lengkapi hasil tes dalam bahasa Inggris.';
     }
 }
