@@ -150,6 +150,10 @@ class RdtApplicantController extends Controller
                 $query->where('city_code', $value);
             });
 
+            $records->when($key == 'session_id' && $value, function ($query) use ($value) {
+                $query->where('pikobar_session_id', $value);
+            });
+
             $records->when($key == 'registration_date_start', function ($query) use ($value) {
                 $query->whereDate('registration_at', '>=', Carbon::parse($value));
             });
