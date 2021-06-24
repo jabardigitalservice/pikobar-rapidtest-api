@@ -142,7 +142,6 @@ class RdtEventParticipantImportResultController extends Controller
         return [
             'kode_pendaftaran' => 'required',
             'hasil' => ['required', new LabResultRule()],
-            'notify' => 'required',
         ];
     }
 
