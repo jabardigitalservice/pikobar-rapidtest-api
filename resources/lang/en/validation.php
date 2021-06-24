@@ -118,7 +118,7 @@ return [
     'uuid' => 'The :attribute must be a valid UUID.',
     'nik'       => ':attribute does not match the NIK format.',
     'recaptcha' => ':attribute is invalid.',
-    'excel_ext' => 'Import of results could not be performed due to file format error. Please upload the file in excel format (.xlsx)',
+    'excel_ext' => 'Please upload the file in excel format (.xlsx)',
 
     /*
     |--------------------------------------------------------------------------
