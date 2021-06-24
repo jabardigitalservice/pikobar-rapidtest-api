@@ -25,7 +25,12 @@ class RdtInvitationImportRequest extends FormRequest
     public function rules()
     {
         return [
-            'file' => new ExcelExtensionRule(optional($this->file)->getClientOriginalExtension())
+            'file' => [
+                'required',
+                'file',
+                'max:2048',
+                new ExcelExtensionRule(optional($this->file)->getClientOriginalExtension())
+            ]
         ];
     }
 }
