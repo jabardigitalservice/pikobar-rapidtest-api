@@ -30,7 +30,6 @@ class RdtCheckinBulkRequest extends FormRequest
             'data.*.lab_code_sample'    => 'required',
             'data.*.location'           => 'required',
             'data.*.attended_at'        => 'required',
-             
         ];
     }
 }
