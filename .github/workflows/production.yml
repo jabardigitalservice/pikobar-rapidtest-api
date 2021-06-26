@@ -11,6 +11,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Github short-commit
+        uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 6
+      - run: echo $SHA
+        env:
+          SHA: ${{ steps.short-sha.outputs.sha }}
+      - run: echo $SHA
+        env:
+          SHA: ${{ env.SHA }}
       - name: Create Sentry release
         uses: getsentry/action-release@v1
         env:
