@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class RdtEventParticipantImportResultController extends Controller
 {
@@ -43,6 +44,8 @@ class RdtEventParticipantImportResultController extends Controller
                 $rowArray = $row->toArray();
 
                 if ($index === 1) {
+                    $this->checkFormatAccordingTemplate($rowArray);
+
                     continue;
                 }
 
@@ -157,5 +160,18 @@ class RdtEventParticipantImportResultController extends Controller
         }
 
         ++$this->result['errors_count'];
+    }
+
+    protected function checkFormatAccordingTemplate($rowArray)
+    {
+        $arr1 = $rowArray[0] != 'Kode Pendaftaran';
+        $arr2 = $rowArray[1] != 'Hasil';
+        $arr3 = $rowArray[2] != 'notify';
+
+        if ($arr1 || $arr2 || $arr3) {
+            throw ValidationException::withMessages([
+                'file' => 'impor gagal, format tidak sesuai template'
+            ]);
+        }
     }
 }
