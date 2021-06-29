@@ -156,7 +156,7 @@ class RdtEventParticipantImportResultController extends Controller
     protected function setError($key, $message)
     {
         if ($message) {
-            $this->result['errors'][$key + 1] = 'Baris ' . ($key + 1) . ': ' . $message;
+            $this->result['errors'][$key + 1] = 'Baris ' . ($key + 1) . ': ' . ucfirst($message);
         }
 
         ++$this->result['errors_count'];
