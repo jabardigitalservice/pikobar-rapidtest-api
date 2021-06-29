@@ -170,7 +170,7 @@ class RdtEventParticipantImportResultController extends Controller
 
         if ($arr1 || $arr2 || $arr3) {
             throw ValidationException::withMessages([
-                'file' => 'impor gagal, format tidak sesuai template'
+                'file' => 'Impor gagal, format tidak sesuai template'
             ]);
         }
     }
