@@ -156,7 +156,7 @@ class RdtEventParticipantImportResultController extends Controller
     protected function setError($key, $message)
     {
         if ($message) {
-            $this->result['errors'][$key + 1] = 'Baris ' . ($key + 1) . ': ' . $message;
+            $this->result['errors'][$key + 1] = 'Baris ' . ($key + 1) . ': ' . ucfirst($message);
         }
 
         ++$this->result['errors_count'];
@@ -170,7 +170,7 @@ class RdtEventParticipantImportResultController extends Controller
 
         if ($arr1 || $arr2 || $arr3) {
             throw ValidationException::withMessages([
-                'file' => 'impor gagal, format tidak sesuai template'
+                'file' => 'Impor gagal, format tidak sesuai template'
             ]);
         }
     }
