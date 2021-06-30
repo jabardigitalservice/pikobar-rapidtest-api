@@ -7,12 +7,21 @@ use App\Entities\RdtInvitation;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rdt\RdtInvitationImportRequest;
 use App\Notifications\TestResult;
+use App\Rules\LabResultRule;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
-use Carbon\Carbon;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class RdtEventParticipantImportResultController extends Controller
 {
+    public $result = [
+        'message' => '',
+        'errors_count' => 0,
+        'errors' => [],
+    ];
 
     public function __invoke(RdtInvitationImportRequest $request, RdtEvent $rdtEvent)
     {
@@ -27,18 +36,29 @@ class RdtEventParticipantImportResultController extends Controller
 
         $rowsCount = 0;
         $now = now();
+        $arrHeader = [];
 
+        DB::beginTransaction();
         foreach ($reader->getSheetIterator() as $sheet) {
             foreach ($sheet->getRowIterator() as $index => $row) {
                 $rowArray = $row->toArray();
 
                 if ($index === 1) {
+                    $this->checkFormatAccordingTemplate($rowArray);
+
                     continue;
                 }
 
-                $registrationCode = $rowArray[0];
-                $result           = strtoupper($rowArray[1]);
-                $notify           = strtoupper($rowArray[2]);
+                $arrHeader['kode_pendaftaran'] = $rowArray[0];
+                $arrHeader['hasil'] = strtoupper($rowArray[1]);
+                $arrHeader['notify'] = strtoupper($rowArray[2]);
+
+                // validation import excel
+                $this->validated($arrHeader, $rowsCount);
+
+                $registrationCode = $arrHeader['kode_pendaftaran'];
+                $result = $arrHeader['hasil'];
+                $notify = $arrHeader['notify'];
 
                 /**
                  * @var RdtInvitation $invitation
@@ -48,7 +68,7 @@ class RdtEventParticipantImportResultController extends Controller
                     ->first();
 
                 // Handling error, skip if not found
-                if ($invitation === null) {
+                if ($invitation === null || count($this->result['errors']) > 0) {
                     Log::info('IMPORT_TEST_RESULT_INVITATION_NOTFOUND', [
                         'rdt_event_id' => $rdtEvent->id,
                         'registration_code' => $registrationCode,
@@ -57,7 +77,10 @@ class RdtEventParticipantImportResultController extends Controller
                         'user_id' => $request->user()->id,
                     ]);
 
+                    $rowsCount++;
                     continue;
+                } else {
+                    $rowsCount++;
                 }
 
                 Log::info('IMPORT_TEST_RESULT_ROW', [
@@ -71,7 +94,7 @@ class RdtEventParticipantImportResultController extends Controller
                 ]);
 
                 $invitation->lab_result_type = $result;
-                $invitation->result_at       = $now;
+                $invitation->result_at = $now;
                 $invitation->save();
 
                 if ($notify === 'YES') {
@@ -88,9 +111,15 @@ class RdtEventParticipantImportResultController extends Controller
                         'user_id' => $request->user()->id,
                     ]);
                 }
-
-                $rowsCount++;
             }
+        }
+
+        if (!$this->result['errors_count'] > 0) {
+            DB::commit();
+            $this->result['message'] = __('response.import_success');
+        } else {
+            $this->result['message'] = __('response.import_failed');
+            DB::rollBack();
         }
 
         Log::info('IMPORT_TEST_RESULT_SUCCESS', [
@@ -99,6 +128,50 @@ class RdtEventParticipantImportResultController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        return response()->json(['message' => 'OK']);
+        return response()->json($this->result, $this->getStatusCodeResponse());
+    }
+
+    public function validated(array $rows, $key)
+    {
+        $validator = Validator::make($rows, $this->rules());
+        $msgErr = str_replace('.', '', implode(', ', $validator->errors()->all()));
+        if ($validator->fails()) {
+            $this->setError($key, $msgErr);
+        }
+    }
+
+    protected function rules()
+    {
+        return [
+            'kode_pendaftaran' => 'required',
+            'hasil' => ['required', new LabResultRule()],
+        ];
+    }
+
+    protected function getStatusCodeResponse()
+    {
+        return $this->result['errors_count'] > 0 ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK;
+    }
+
+    protected function setError($key, $message)
+    {
+        if ($message) {
+            $this->result['errors'][$key + 1] = 'Baris ' . ($key + 1) . ': ' . ucfirst($message);
+        }
+
+        ++$this->result['errors_count'];
+    }
+
+    protected function checkFormatAccordingTemplate($rowArray)
+    {
+        $arr1 = $rowArray[0] != 'Kode Pendaftaran';
+        $arr2 = $rowArray[1] != 'Hasil';
+        $arr3 = $rowArray[2] != 'notify';
+
+        if ($arr1 || $arr2 || $arr3) {
+            throw ValidationException::withMessages([
+                'file' => 'Impor gagal, format tidak sesuai template'
+            ]);
+        }
     }
 }

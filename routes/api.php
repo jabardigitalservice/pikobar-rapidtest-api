@@ -25,6 +25,7 @@ Route::get('rdt/check-event', 'Rdt\RdtCheckEventController');
 Route::post('rdt/check', 'Rdt\RdtCheckStatusController');
 Route::get('rdt/register/download', 'Rdt\RdtRegisterDownloadController')->name('registration.download');
 Route::get('rdt/qrcode', 'Rdt\RdtQrCodeController')->name('registration.qrcode');
+Route::get('template/import-result-test', 'TemplateImportResultTestController');
 
 Route::post('rdt/survey', 'Rdt\RdtSurveyStoreController');
 
